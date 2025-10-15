@@ -21,25 +21,25 @@ hud.tileset = {
 
 function hud.leftBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
-  love.graphics.rectangle("fill", 0, 0, hud.leftBar.width, hud.leftBar.height)
+  love.graphics.rectangle("fill", 0, menuBar.height, hud.leftBar.width, hud.leftBar.height - menuBar.height)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle("fill", hud.leftBar.width-1, 0, 1, hud.leftBar.height)
+  love.graphics.rectangle("fill", hud.leftBar.width-1, menuBar.height, 1, hud.leftBar.height - menuBar.height)
 end
 
 
 function hud.rightBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
-  love.graphics.rectangle("fill", window.width-hud.rightBar.width, 0, hud.rightBar.width, hud.rightBar.height)
+  love.graphics.rectangle("fill", window.width-hud.rightBar.width, menuBar.height, hud.rightBar.width, hud.rightBar.height - menuBar.height)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle("fill", window.width-hud.rightBar.width, 0, 1, hud.rightBar.height)
+  love.graphics.rectangle("fill", window.width-hud.rightBar.width, menuBar.height, 1, hud.rightBar.height - menuBar.height)
 end
 
 
 function hud.topBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
-  love.graphics.rectangle("fill", 0, 0, hud.topBar.width, hud.topBar.height)
+  love.graphics.rectangle("fill", 0, menuBar.height, hud.topBar.width, hud.topBar.height)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle("fill", 0, hud.topBar.height-1, hud.topBar.width, 1)
+  love.graphics.rectangle("fill", 0, menuBar.height + hud.topBar.height-1, hud.topBar.width, 1)
 end
 
 

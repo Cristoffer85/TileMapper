@@ -3,8 +3,8 @@ input.list = {"c", "l"}
 
 function input.load()
   local x = 80
-  input.add(input.list[1], "width", x, 10, input.list[2])
-  input.add(input.list[2], "height", x + 150, 10, input.list[1])
+  input.add(input.list[1], "width", x, 10 + menuBar.height, input.list[2])
+  input.add(input.list[2], "height", x + 150, 10 + menuBar.height, input.list[1])
 end
 
 function input.add(name, toUpdate, x, y, nextTab)

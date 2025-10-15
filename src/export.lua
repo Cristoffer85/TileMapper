@@ -60,7 +60,7 @@ function export.mousepressed(touch)
   if mouse.zone == "topBar" then
     local spacing = 10
     local pX = 450
-    local pY = 5
+    local pY = 5 + menuBar.height
     local width = 30
     local i
     for i = 1, #export.format do

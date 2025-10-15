@@ -121,7 +121,7 @@ function import.mousepressed(touch)
   if mouse.zone == "topBar" then
     local spacing = 10
     local pX = 700
-    local pY = 5
+    local pY = 5 + menuBar.height
     local width = 30
     local i
     for i = 1, #import.format do

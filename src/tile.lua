@@ -3,7 +3,7 @@ local tile = {}
 function tile.update()
   if mouse.zone == "rightBar" then 
     local pX = 10
-    local pY = 100
+    local pY = 100 + menuBar.height
     local spacing = 1
     local pTileWidth = 32
     

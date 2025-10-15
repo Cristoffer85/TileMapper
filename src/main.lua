@@ -23,6 +23,7 @@ export = require("export")
 import = require("import")
 input = require("input")
 menu = require("menu")
+menuBar = require("src.menu.menuBar")
 
 
 
@@ -34,13 +35,18 @@ function love.load()
   
   window.grid = {}
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
-  window.grid.height = window.height-hud.topBar.height
+  window.grid.height = window.height-hud.topBar.height-menuBar.height
   
   action.resetPos.f()
   
 end
 
 function love.mousepressed(x, y, touch)
+  -- MenuBar input has highest priority
+  if menuBar.mousepressed(x, y, touch) then
+    return
+  end
+  
   -- Menu input has priority
   if menu.mousepressed(x, y, touch) then
     return
@@ -61,16 +67,6 @@ function love.textinput(t)
 end
 
 function love.keypressed(key)
-  -- Handle menu toggle (Ctrl+M) - highest priority
-  if key == "m" and love.keyboard.isDown("lctrl") then
-    if menu.visible then
-      menu.hide()
-    else
-      menu.show("main")
-    end
-    return
-  end
-  
   -- Menu input has priority
   if menu.keypressed(key) then
     return
@@ -91,7 +87,7 @@ function love.resize(w, h)
   window.height = h
   hud.updateDimensions()
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
-  window.grid.height = window.height-hud.topBar.height
+  window.grid.height = window.height-hud.topBar.height-menuBar.height
   menu.updatePosition()
 end
 
@@ -101,6 +97,7 @@ function love.update(dt)
   action.update(dt)
   tool.update()
   tile.update()
+  menuBar.update()
   
 end
 
@@ -118,13 +115,16 @@ function love.draw()
   hud.rightBar.draw()
   hud.topBar.draw()
   
-  hud.drawButtonLeftBar(5, 50, 10, 30, tool.list)
-  hud.drawButtonLeftBar(5, 400, 10, 30, action.list)
-  hud.drawButtonLeftBar(5, 650, 10, 30, action.importantList)
-  hud.drawButtonTopBar(450, 5, 10, 30, export.list, "Export")
-  hud.drawButtonTopBar(700, 5, 10, 30, import.list, "Import")
-  hud.drawTile(10, 100, 1, 32)
+  hud.drawButtonLeftBar(5, 50 + menuBar.height, 10, 30, tool.list)
+  hud.drawButtonLeftBar(5, 400 + menuBar.height, 10, 30, action.list)
+  hud.drawButtonLeftBar(5, 650 + menuBar.height, 10, 30, action.importantList)
+  hud.drawButtonTopBar(450, 5 + menuBar.height, 10, 30, export.list, "Export")
+  hud.drawButtonTopBar(700, 5 + menuBar.height, 10, 30, import.list, "Import")
+  hud.drawTile(10, 100 + menuBar.height, 1, 32)
   input.draw()
+  
+  -- Draw menu bar
+  menuBar.draw()
   
   -- Draw menu on top of everything
   menu.draw()

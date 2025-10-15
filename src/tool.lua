@@ -22,7 +22,7 @@ function tool.update()
   if mouse.zone == "leftBar" then 
     local spacing = 10
     local pX = 5
-    local pY = 50
+    local pY = 50 + menuBar.height
     local height = 30
     local i
     for i = 1, #tool.list do
@@ -61,7 +61,9 @@ function tool.update()
   end
   
   if mouse.zone == "grid" then
-    tool[tool.current].f()
+    if tool.current and tool[tool.current] and tool[tool.current].f then
+      tool[tool.current].f()
+    end
   end
 end
 

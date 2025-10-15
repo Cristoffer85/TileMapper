@@ -5,7 +5,9 @@ mouse.fillColor = mouse.currentColor
 function mouse.update()
   mouse.x = love.mouse.getX()
   mouse.y = love.mouse.getY()
-  if mouse.y <= hud.topBar.height then
+  if mouse.y <= menuBar.height then
+    mouse.zone = "menuBar"
+  elseif mouse.y <= menuBar.height + hud.topBar.height then
     mouse.zone = "topBar"
   elseif mouse.x <= hud.leftBar.width then
     mouse.zone = "leftBar"

@@ -31,7 +31,7 @@ function action.mousepressed(touch)
 
   local spacing = 10
   local pX = 5
-  local pY = 400
+  local pY = 400 + menuBar.height
   local height = 30
   local i
   for i = 1, #action.list do
@@ -45,7 +45,7 @@ function action.mousepressed(touch)
     end
   end
 
-  local y = 650
+  local y = 650 + menuBar.height
   if mouse.collide(pX, y, height, height) then
     local answer = love.window.showMessageBox(
       "Warning",
