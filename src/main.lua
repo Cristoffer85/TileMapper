@@ -23,7 +23,7 @@ export = require("export")
 import = require("import")
 input = require("input")
 menu = require("menu")
-menuBar = require("src.menu.menuBar")
+menuBar = require("menuBar")
 
 
 
