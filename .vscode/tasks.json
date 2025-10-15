@@ -4,8 +4,11 @@
         {
             "label": "Run Love2D Project",
             "type": "shell",
-            "command": "\"C:\\Program Files\\LOVE\\love.exe\"",
+            "command": "love",
             "args": ["src"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -21,8 +24,11 @@
         {
             "label": "Run Love2D Project (Alternative)",
             "type": "shell",
-            "command": "\"C:\\Program Files\\LOVE\\love.exe\"",
+            "command": "love",
             "args": ["${workspaceFolder}/src"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "group": "build",
             "presentation": {
                 "echo": true,

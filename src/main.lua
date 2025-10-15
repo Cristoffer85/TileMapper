@@ -22,6 +22,7 @@ hud = require("hud")
 export = require("export")
 import = require("import")
 input = require("input")
+menu = require("menu")
 
 
 
@@ -40,19 +41,40 @@ function love.load()
 end
 
 function love.mousepressed(x, y, touch)
+  -- Menu input has priority
+  if menu.mousepressed(x, y, touch) then
+    return
+  end
   
   action.mousepressed(touch)
   import.mousepressed(touch)
   export.mousepressed(touch)
   input.mousepressed(touch)
-  
 end
 
 function love.textinput(t)
+  -- Menu input has priority
+  if menu.textinput(t) then
+    return
+  end
   input.textinput(t)
 end
 
 function love.keypressed(key)
+  -- Handle menu toggle (Ctrl+M) - highest priority
+  if key == "m" and love.keyboard.isDown("lctrl") then
+    if menu.visible then
+      menu.hide()
+    else
+      menu.show("main")
+    end
+    return
+  end
+  
+  -- Menu input has priority
+  if menu.keypressed(key) then
+    return
+  end
   input.keypressed(key)
 end
 
@@ -70,6 +92,7 @@ function love.resize(w, h)
   hud.updateDimensions()
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
   window.grid.height = window.height-hud.topBar.height
+  menu.updatePosition()
 end
 
 function love.update(dt)
@@ -102,5 +125,8 @@ function love.draw()
   hud.drawButtonTopBar(700, 5, 10, 30, import.list, "Import")
   hud.drawTile(10, 100, 1, 32)
   input.draw()
+  
+  -- Draw menu on top of everything
+  menu.draw()
   
 end
