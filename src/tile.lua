@@ -18,12 +18,17 @@ function tile.update()
       for c = 1, nbColumn do
         if grid.tileTexture[(nbColumn*(l-1))+c] ~= nil then
           local x = paddingX+(c-1)*(pTileWidth+spacing)
-          local y = pY+(l-1)*(pTileWidth+spacing)
-          if mouse.collide(x, y, pTileWidth, pTileWidth) then
-            if love.mouse.isDown(mouseTouch1) then
-              mouse.currentColor = (nbColumn*(l-1))+c
-              mouse.fillColor = (nbColumn*(l-1))+c
-              if tool.current ~= "fill" then tool.current = "pen" end
+          local y = pY+(l-1)*(pTileWidth+spacing) + hud.tileset.scrollOffset
+          
+          -- Only check collision if tile is visible in the scrollable area
+          local availableHeight = window.height - pY
+          if y + pTileWidth >= pY and y <= pY + availableHeight then
+            if mouse.collide(x, y, pTileWidth, pTileWidth) then
+              if love.mouse.isDown(mouseTouch1) then
+                mouse.currentColor = (nbColumn*(l-1))+c
+                mouse.fillColor = (nbColumn*(l-1))+c
+                if tool.current ~= "fill" then tool.current = "pen" end
+              end
             end
           end
         end

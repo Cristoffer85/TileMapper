@@ -57,7 +57,11 @@ function love.keypressed(key)
 end
 
 function love.wheelmoved(x, y)
-  action.zoom.wheelmoved(y)
+  -- Try tileset scrolling first
+  if not hud.scrollTileset(y) then
+    -- If tileset didn't consume the scroll, use for zooming
+    action.zoom.wheelmoved(y)
+  end
 end
 
 function love.resize(w, h)

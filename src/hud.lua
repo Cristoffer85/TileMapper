@@ -13,6 +13,11 @@ hud.topBar = {}
 hud.topBar.width = window.width
 hud.topBar.height = 40
 
+-- Tileset scrolling
+hud.tileset = {
+  scrollOffset = 0,
+  scrollSpeed = 32
+}
 
 function hud.leftBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
@@ -91,6 +96,12 @@ function hud.drawTile(pX, pY, spacing, pTileWidth)
   local nbColumn = math.floor((width)/(pTileWidth+spacing))
   local paddingX = window.width-hud.rightBar.width+pX + (width-nbColumn*(pTileWidth+spacing))/2
   local nbLine = math.floor(((pTileWidth+spacing)*#grid.tileTexture)/width) + 1
+  
+  -- Setup clipping for scrollable area
+  local rightBarX = window.width - hud.rightBar.width
+  local availableHeight = window.height - pY
+  love.graphics.setScissor(rightBarX, pY, hud.rightBar.width, availableHeight)
+  
   love.graphics.setColor(1, 1, 1)
   local l
   for l = 1, nbLine do
@@ -99,22 +110,54 @@ function hud.drawTile(pX, pY, spacing, pTileWidth)
       local index = (nbColumn*(l-1))+c
       if grid.tileTexture[index] ~= nil then
         local x = paddingX+(c-1)*(pTileWidth+spacing)
-        local y = pY+(l-1)*(pTileWidth+spacing)
-        if mouse.currentColor == (nbColumn*(l-1))+c then
-          love.graphics.setColor(50/255, 50/255, 50/255)
-          love.graphics.rectangle("fill", x-1, y-1, pTileWidth+2, pTileWidth+2)
-          love.graphics.setColor(1, 1, 1)
+        local y = pY+(l-1)*(pTileWidth+spacing) + hud.tileset.scrollOffset
+        
+        -- Only draw if tile is visible in the clipped area
+        if y + pTileWidth >= pY and y <= pY + availableHeight then
+          if mouse.currentColor == (nbColumn*(l-1))+c then
+            love.graphics.setColor(50/255, 50/255, 50/255)
+            love.graphics.rectangle("fill", x-1, y-1, pTileWidth+2, pTileWidth+2)
+            love.graphics.setColor(1, 1, 1)
+          end
+          love.graphics.draw(grid.tileSet, grid.tileTexture[index], x, y, 0, rapport, rapport)
         end
-        love.graphics.draw(grid.tileSet, grid.tileTexture[index], x, y, 0, rapport, rapport)
       end
     end
   end
+  
+  -- Reset clipping
+  love.graphics.setScissor()
 end
 
 function hud.updateDimensions()
   hud.leftBar.height = window.height
   hud.rightBar.height = window.height
   hud.topBar.width = window.width
+end
+
+function hud.scrollTileset(deltaY)
+  if mouse.zone == "rightBar" then
+    hud.tileset.scrollOffset = hud.tileset.scrollOffset + (deltaY * hud.tileset.scrollSpeed)
+    
+    -- Calculate bounds to prevent over-scrolling
+    local pX = 10
+    local pY = 100
+    local spacing = 1
+    local pTileWidth = 32
+    local width = hud.rightBar.width-pX*2
+    local nbColumn = math.floor((width)/(pTileWidth+spacing))
+    local nbLine = math.floor(((pTileWidth+spacing)*#grid.tileTexture)/width) + 1
+    local totalHeight = nbLine * (pTileWidth + spacing)
+    local availableHeight = window.height - pY
+    
+    -- Clamp scroll offset
+    local maxScroll = 0
+    local minScroll = math.min(0, availableHeight - totalHeight)
+    hud.tileset.scrollOffset = math.max(minScroll, math.min(maxScroll, hud.tileset.scrollOffset))
+    
+    return true -- Consumed the scroll event
+  end
+  return false -- Did not consume the scroll event
 end
 
 return hud
