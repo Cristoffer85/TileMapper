@@ -3,7 +3,7 @@ local menu = {}
 
 -- Import menu modules
 local mainMenu = require("menu.mainMenu")
-local newProject = require("menu.newProject")
+local newProject = require("menu.newProject.init")
 local loadProject = require("menu.loadProject")
 local saveProject = require("menu.saveProject")
 

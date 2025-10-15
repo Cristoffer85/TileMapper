@@ -1,0 +1,182 @@
+-- Project form UI and input handling
+local projectForm = {}
+
+projectForm.fields = {
+  "projectName",
+  "mapWidth", 
+  "mapHeight",
+  "tileSize"
+}
+
+function projectForm.draw(menu, data)
+  love.graphics.setColor(1, 1, 1)
+  
+  local title = "Create New Project"
+  local titleWidth = love.graphics.getFont():getWidth(title)
+  love.graphics.print(title, menu.x + (menu.width - titleWidth) / 2, menu.y + 20)
+  
+  -- Draw input fields
+  projectForm.drawInputFields(menu, data)
+  
+  -- Draw tileset selection button
+  projectForm.drawTilesetButton(menu, data)
+  
+  -- Draw action buttons
+  projectForm.drawActionButtons(menu)
+end
+
+function projectForm.drawInputFields(menu, data)
+  local fieldY = menu.y + 60
+  local fieldHeight = 25
+  local labelWidth = 120
+  local inputWidth = 150
+  
+  local fields = {
+    {label = "Project Name:", key = "projectName"},
+    {label = "Map Width:", key = "mapWidth"},
+    {label = "Map Height:", key = "mapHeight"},
+    {label = "Tile Size:", key = "tileSize"}
+  }
+  
+  for i, field in ipairs(fields) do
+    local y = fieldY + (i - 1) * (fieldHeight + 5)
+    
+    -- Label
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(field.label, menu.x + 20, y)
+    
+    -- Input field
+    local inputX = menu.x + 20 + labelWidth
+    local selected = (data.selectedField == i)
+    
+    love.graphics.setColor(selected and {0.5, 0.5, 0.8} or {0.3, 0.3, 0.3})
+    love.graphics.rectangle("fill", inputX, y, inputWidth, fieldHeight)
+    
+    love.graphics.setColor(0.8, 0.8, 0.8)
+    love.graphics.rectangle("line", inputX, y, inputWidth, fieldHeight)
+    
+    -- Input text
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(data[field.key] or "", inputX + 5, y + 3)
+  end
+end
+
+function projectForm.drawTilesetButton(menu, data)
+  local fieldY = menu.y + 60
+  local fieldHeight = 25
+  local tilesetY = fieldY + 5 * (fieldHeight + 5) + 10
+  local buttonX = menu.x + 20
+  local buttonW = menu.width - 40
+  
+  love.graphics.setColor(0.3, 0.3, 0.3)
+  love.graphics.rectangle("fill", buttonX, tilesetY, buttonW, fieldHeight)
+  love.graphics.setColor(0.8, 0.8, 0.8)
+  love.graphics.rectangle("line", buttonX, tilesetY, buttonW, fieldHeight)
+  
+  love.graphics.setColor(1, 1, 1)
+  local text = data.tilesetPath ~= "" and data.tilesetPath or "Click to select tileset..."
+  love.graphics.print(text, buttonX + 5, tilesetY + 3)
+  
+  -- Store button info
+  projectForm.tilesetButton = {x = buttonX, y = tilesetY, w = buttonW, h = fieldHeight}
+end
+
+function projectForm.drawActionButtons(menu)
+  local fieldY = menu.y + 60
+  local fieldHeight = 25
+  local buttonY = fieldY + 6 * (fieldHeight + 5) + 30
+  local createButtonX = menu.x + 50
+  local cancelButtonX = menu.x + menu.width - 150
+  local buttonW = 100
+  
+  -- Create button
+  love.graphics.setColor(0.2, 0.4, 0.2)
+  love.graphics.rectangle("fill", createButtonX, buttonY, buttonW, fieldHeight)
+  love.graphics.setColor(0.8, 0.8, 0.8)
+  love.graphics.rectangle("line", createButtonX, buttonY, buttonW, fieldHeight)
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.print("Create", createButtonX + 30, buttonY + 3)
+  
+  -- Cancel button
+  love.graphics.setColor(0.4, 0.2, 0.2)
+  love.graphics.rectangle("fill", cancelButtonX, buttonY, buttonW, fieldHeight)
+  love.graphics.setColor(0.8, 0.8, 0.8)
+  love.graphics.rectangle("line", cancelButtonX, buttonY, buttonW, fieldHeight)
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.print("Cancel", cancelButtonX + 30, buttonY + 3)
+  
+  -- Store button info
+  projectForm.buttons = {
+    create = {x = createButtonX, y = buttonY, w = buttonW, h = fieldHeight},
+    cancel = {x = cancelButtonX, y = buttonY, w = buttonW, h = fieldHeight}
+  }
+end
+
+function projectForm.mousepressed(x, y, menu, data, controller)
+  -- Check input field clicks
+  local fieldY = menu.y + 60
+  local fieldHeight = 25
+  local labelWidth = 120
+  local inputWidth = 150
+  
+  for i = 1, #projectForm.fields do
+    local fieldY_pos = fieldY + (i - 1) * (fieldHeight + 5)
+    local inputX = menu.x + 20 + labelWidth
+    
+    if menu.isMouseOver(inputX, fieldY_pos, inputWidth, fieldHeight) then
+      data.selectedField = i
+      return true
+    end
+  end
+  
+  -- Check tileset button
+  if projectForm.tilesetButton and menu.isMouseOver(projectForm.tilesetButton.x, projectForm.tilesetButton.y, projectForm.tilesetButton.w, projectForm.tilesetButton.h) then
+    controller.selectTileset()
+    return true
+  end
+  
+  -- Check action buttons
+  if projectForm.buttons then
+    if menu.isMouseOver(projectForm.buttons.create.x, projectForm.buttons.create.y, projectForm.buttons.create.w, projectForm.buttons.create.h) then
+      controller.create(menu)
+      return true
+    elseif menu.isMouseOver(projectForm.buttons.cancel.x, projectForm.buttons.cancel.y, projectForm.buttons.cancel.w, projectForm.buttons.cancel.h) then
+      menu.show("main")
+      return true
+    end
+  end
+  
+  return false
+end
+
+function projectForm.textinput(text, data)
+  local field = projectForm.fields[data.selectedField]
+  if field then
+    data[field] = (data[field] or "") .. text
+    return true
+  end
+  return false
+end
+
+function projectForm.keypressed(key, menu, data)
+  if key == "tab" then
+    data.selectedField = data.selectedField + 1
+    if data.selectedField > #projectForm.fields then
+      data.selectedField = 1
+    end
+    return true
+  elseif key == "backspace" then
+    local field = projectForm.fields[data.selectedField]
+    if field and data[field] then
+      data[field] = string.sub(data[field], 1, -2)
+    end
+    return true
+  elseif key == "return" then
+    -- Trigger create action (would need controller reference)
+    return true
+  end
+  
+  return false
+end
+
+return projectForm
