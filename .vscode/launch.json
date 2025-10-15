@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Love2D Game",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "love",
+            "runtimeArgs": ["${workspaceFolder}/src"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
