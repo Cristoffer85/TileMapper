@@ -50,6 +50,20 @@ function input.textinput(t)
 end
 
 function input.keypressed(key)
+  -- Handle fullscreen toggle (F11 or Alt+Enter)
+  if key == "f11" or (key == "return" and love.keyboard.isDown("lalt")) then
+    local isFullscreen = love.window.getFullscreen()
+    love.window.setFullscreen(not isFullscreen)
+    
+    -- Update window dimensions
+    window.width, window.height = love.graphics.getDimensions()
+    hud.updateDimensions()
+    window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
+    window.grid.height = window.height-hud.topBar.height
+    
+    return -- Exit early to avoid processing other input
+  end
+  
   local toUpdate = false
   local nextOnce = false
   for i = 1, #input.list do

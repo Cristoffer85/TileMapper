@@ -111,4 +111,10 @@ function hud.drawTile(pX, pY, spacing, pTileWidth)
   end
 end
 
+function hud.updateDimensions()
+  hud.leftBar.height = window.height
+  hud.rightBar.height = window.height
+  hud.topBar.width = window.width
+end
+
 return hud

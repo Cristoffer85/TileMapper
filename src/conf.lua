@@ -4,6 +4,9 @@ function love.conf(t)
     t.window.title = "2D Map Editor - github.com/mDeram"
     t.window.width = 1200
     t.window.height = 700
+    t.window.resizable = true
+    t.window.fullscreen = false
+    t.window.fullscreentype = "desktop"
     
     t.modules.audio = false
     t.modules.joystick = false

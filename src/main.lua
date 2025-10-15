@@ -60,6 +60,14 @@ function love.wheelmoved(x, y)
   action.zoom.wheelmoved(y)
 end
 
+function love.resize(w, h)
+  window.width = w
+  window.height = h
+  hud.updateDimensions()
+  window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
+  window.grid.height = window.height-hud.topBar.height
+end
+
 function love.update(dt)
   
   mouse.update()
