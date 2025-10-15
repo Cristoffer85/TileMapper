@@ -42,20 +42,28 @@ function projectValidator.validateTilesetExists(tilesetPath)
     return false
   end
   
-  -- Check if it's just a filename or has a path
-  local filename = tilesetPath:match("([^/\\]+)$") or tilesetPath
-  
-  -- Try to open the file
-  local baseDirectory = love.filesystem.getSourceBaseDirectory()
-  local fullPath = baseDirectory .. "/tileset/" .. filename
-  
-  local f = io.open(fullPath, "rb")
-  if f then
-    f:close()
-    return true
+  -- Check if it's an absolute path (external file)
+  if tilesetPath:match("^[A-Za-z]:") or tilesetPath:match("^/") then
+    -- External file - check if it exists
+    local f = io.open(tilesetPath, "rb")
+    if f then
+      f:close()
+      return true
+    end
+    return false
+  else
+    -- Local file in tileset folder
+    local filename = tilesetPath:match("([^/\\]+)$") or tilesetPath
+    local baseDirectory = love.filesystem.getSourceBaseDirectory()
+    local fullPath = baseDirectory .. "/tileset/" .. filename
+    
+    local f = io.open(fullPath, "rb")
+    if f then
+      f:close()
+      return true
+    end
+    return false
   end
-  
-  return false
 end
 
 function projectValidator.createProject(data)
@@ -92,13 +100,25 @@ function projectValidator.initializeProject(data)
     _G.grid.tileWidth = tileSize
     _G.grid.tileHeight = tileSize
     
+    -- Determine if it's an external file or local tileset
+    local tilesetPath
+    if data.isExternalFile and (data.tilesetPath:match("^[A-Za-z]:") or data.tilesetPath:match("^/")) then
+      -- External file - use full path
+      tilesetPath = data.tilesetPath
+    else
+      -- Local file - use relative path
+      tilesetPath = "tileset/" .. data.tilesetPath
+    end
+    
     -- Update grid tileset path
-    _G.grid.tileSetPath = "tileset/" .. data.tilesetPath
+    _G.grid.tileSetPath = tilesetPath
     
     -- Update global data
     if not _G.data then _G.data = {} end
     _G.data.projectName = data.projectName
     _G.data.tilesetPath = data.tilesetPath
+    _G.data.tilesetDisplayName = data.tilesetDisplayName or data.tilesetPath
+    _G.data.isExternalFile = data.isExternalFile or false
     _G.data.mapWidth = mapWidth
     _G.data.mapHeight = mapHeight
     _G.data.tileSize = tileSize

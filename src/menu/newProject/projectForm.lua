@@ -5,7 +5,8 @@ projectForm.fields = {
   "projectName",
   "mapWidth", 
   "mapHeight",
-  "tileSize"
+  "tileSize",
+  "tilesetPath"
 }
 
 function projectForm.draw(menu, data)
@@ -35,7 +36,8 @@ function projectForm.drawInputFields(menu, data)
     {label = "Project Name:", key = "projectName"},
     {label = "Map Width:", key = "mapWidth"},
     {label = "Map Height:", key = "mapHeight"},
-    {label = "Tile Size:", key = "tileSize"}
+    {label = "Tile Size:", key = "tileSize"},
+    {label = "Tileset Path:", key = "tilesetPath", hint = "Full path to PNG file or just filename"}
   }
   
   for i, field in ipairs(fields) do

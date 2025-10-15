@@ -130,3 +130,10 @@ function love.draw()
   menu.draw()
   
 end
+
+function love.filedropped(file)
+  -- Handle file drops for tileset selection when in new project menu
+  if menu and menu.state and menu.state == "newProject" and menu.currentMenu and menu.currentMenu.handleFileDrop then
+    menu.currentMenu.handleFileDrop(file)
+  end
+end

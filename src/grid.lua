@@ -8,15 +8,22 @@ grid.tileTexture = {}
 grid.tileSetPath = "tileset/tileset.png"
 
 function grid.loadExternalImage()
-  local path = love.filesystem.getSourceBaseDirectory().."/"..grid.tileSetPath
+  local path
+  -- Check if it's an absolute path (external file)
+  if grid.tileSetPath:match("^[A-Za-z]:") or grid.tileSetPath:match("^/") then
+    path = grid.tileSetPath
+  else
+    path = love.filesystem.getSourceBaseDirectory().."/"..grid.tileSetPath
+  end
   local file = io.open(path, "rb")
   if file == nil then
     love.window.showMessageBox(
       "A tileset is required for the editor to run",
-      "Make sure the path to the tileset in the config file 'editor.txt' is valid",
+      "Make sure the path to the tileset is valid: " .. path,
       "error"
     )
     love.event.quit()
+    return
   end
   local data = file:read("*all")
   file:close()
