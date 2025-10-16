@@ -113,6 +113,12 @@ function browseButton.openTilesetBrowser()
           -- Reset scroll position for better UX
           local tilesetScroll = require("panel.rightpanel.tilesetScroll")
           tilesetScroll.resetScroll()
+          
+          -- Fix mouse state issue after file dialog - prevent camera dragging
+          -- The file dialog can leave Love2D thinking mouse button is still down
+          if tool and tool.camera then
+            tool.camera.state = false
+          end
         end
       end
     end

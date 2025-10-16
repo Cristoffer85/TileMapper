@@ -86,6 +86,11 @@ function grid.loadMultipleTilesets()
   grid.tileTexture = {}
   grid.tilesets = {}
   
+  -- Load saved collapsed states, then initialize defaults for new tilesets
+  local tilesetScroll = require("panel.rightpanel.tilesetScroll")
+  tilesetScroll.loadFromFile()  -- Load saved states first
+  tilesetScroll.initializeCollapsedStates(grid.tilesetPaths)  -- Set defaults for any new ones
+  
   local totalTileId = 1
   
   for tilesetIndex, tilesetPath in ipairs(grid.tilesetPaths) do
@@ -303,6 +308,11 @@ function grid.addSingleTileset(tilesetPath)
     path = relativePath,
     startTileId = nextTileId
   }
+  
+  -- Set new tileset as collapsed by default and save the state
+  local tilesetScroll = require("panel.rightpanel.tilesetScroll")
+  tilesetScroll.setTilesetCollapsed(tilesetIndex, true)
+  tilesetScroll.saveToFile()  -- Save updated states
   
   -- Generate quads only for the new tileset
   local nbColumn = math.floor(tileset:getWidth() / grid.tileWidth)
