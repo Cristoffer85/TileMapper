@@ -38,12 +38,12 @@ function grid.loadExternalImage()
 end
 
 function grid.load()
-  -- Auto-detect tilesets in the tileset folder if not already in multi-tileset mode
+  -- Quick auto-detect tilesets (fast check only)
   if not grid.multiTilesetMode then
     grid.autoDetectTilesets()
   end
   
-  -- Check if we're using multi-tileset mode
+  -- Load tilesets - prioritize fast startup
   if grid.multiTilesetMode and #grid.tilesetPaths > 0 then
     grid.loadMultipleTilesets()
   else
@@ -90,9 +90,10 @@ function grid.loadMultipleTilesets()
         startTileId = totalTileId
       }
       
-      local nbColumn = tileset:getWidth() / grid.tileWidth
-      local nbLine = tileset:getHeight() / grid.tileHeight
+      local nbColumn = math.floor(tileset:getWidth() / grid.tileWidth)
+      local nbLine = math.floor(tileset:getHeight() / grid.tileHeight)
       
+      -- Pre-calculate quad data for faster rendering
       for l = 1, nbLine do
         for c = 1, nbColumn do
           grid.tileTexture[totalTileId] = {
@@ -197,43 +198,33 @@ function grid.autoDetectTilesets()
   local baseDirectory = love.filesystem.getSourceBaseDirectory()
   local tilesetDir = baseDirectory .. "/tileset"
   
-  -- Get list of PNG files in tileset directory
+  -- Get list of PNG files in tileset directory (fast manual scan)
   local tilesetFiles = {}
   
-  -- Cross-platform directory scanning
-  if love.system.getOS() == "Windows" then
-    local handle = io.popen('dir "' .. tilesetDir .. '\\*.png" /B 2>nul')
-    if handle then
-      for file in handle:lines() do
-        if file:lower():match("%.png$") then
-          table.insert(tilesetFiles, "tileset/" .. file)
-        end
-      end
-      handle:close()
-    end
-  else
-    -- Linux/Mac using ls command
-    local handle = io.popen('ls "' .. tilesetDir .. '"/*.png 2>/dev/null')
-    if handle then
-      for file in handle:lines() do
-        local filename = file:match("([^/]+)$")
-        if filename and filename:lower():match("%.png$") then
-          table.insert(tilesetFiles, "tileset/" .. filename)
-        end
-      end
-      handle:close()
+  -- Fast manual scan - check for common tileset files directly
+  local commonFiles = {"TileSheet.png", "TileSheet2.png", "tileset.png", "ground.png", "buildings.png", "decorations.png", "tiles.png", "texture.png"}
+  
+  for _, filename in ipairs(commonFiles) do
+    local fullPath = tilesetDir .. "/" .. filename
+    local file = io.open(fullPath, "rb")
+    if file then
+      file:close()
+      table.insert(tilesetFiles, "tileset/" .. filename)
     end
   end
   
-  -- Manual scan as fallback (check known files)
+  -- If we didn't find common files, do a quick directory scan
   if #tilesetFiles == 0 then
-    local knownFiles = {"TileSheet.png", "TileSheet2.png", "tileset.png", "ground.png", "buildings.png", "decorations.png"}
-    for _, filename in ipairs(knownFiles) do
-      local fullPath = tilesetDir .. "/" .. filename
-      local file = io.open(fullPath, "rb")
-      if file then
-        file:close()
-        table.insert(tilesetFiles, "tileset/" .. filename)
+    if love.system.getOS() == "Windows" then
+      local handle = io.popen('dir "' .. tilesetDir .. '\\*.png" /B /A:-D 2>nul')
+      if handle then
+        for file in handle:lines() do
+          if file and file:lower():match("%.png$") then
+            table.insert(tilesetFiles, "tileset/" .. file)
+            if #tilesetFiles >= 10 then break end -- Limit to prevent slow startup
+          end
+        end
+        handle:close()
       end
     end
   end
@@ -246,11 +237,7 @@ function grid.autoDetectTilesets()
     -- Sort files alphabetically for consistent ordering
     table.sort(grid.tilesetPaths)
     
-    love.window.showMessageBox(
-      "Multi-Tileset Mode", 
-      "Found " .. #tilesetFiles .. " tilesets. Enabling multi-tileset mode with collapsible sections in right panel.", 
-      "info"
-    )
+    -- Silent activation - no popup message
   elseif #tilesetFiles == 1 then
     -- Single tileset found, use it
     grid.tileSetPath = tilesetFiles[1]
