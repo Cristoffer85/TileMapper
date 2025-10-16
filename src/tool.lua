@@ -73,16 +73,7 @@ function tool.pen.f()
       grid.map[mouse.l][mouse.c] = mouse.currentColor
     end
   end
-  
-  -- Only update fillColor if not protected by tile selection
-  if not (hud and hud.tileSelectionProtected) then
-    mouse.fillColor = mouse.currentColor
-  else
-    -- DEBUG: Show when pen tool is blocked
-    if hud.debugMode then
-      hud.debugToolBlocked = "pen blocked fillColor update"
-    end
-  end
+  mouse.fillColor = mouse.currentColor
 end
 
 function tool.erase.f()
@@ -152,13 +143,8 @@ function tool.fill.f()
     end
     
   end
-  
-  -- Only reset currentColor if not protected by tile selection
-  if mouse.fillColor ~= 0 and not (hud and hud.tileSelectionProtected) then
+  if mouse.fillColor ~= 0 then
     mouse.currentColor = mouse.fillColor
-  elseif hud and hud.tileSelectionProtected and hud.debugMode then
-    -- DEBUG: Show when fill tool is blocked
-    hud.debugToolBlocked = "fill blocked currentColor reset (fillColor=" .. mouse.fillColor .. ")"
   end
 end
 
