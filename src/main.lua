@@ -100,6 +100,7 @@ function love.update(dt)
   
   mouse.update()
   action.update(dt)
+  hud.update(dt)
   tool.update()
   tile.update()
   menuBar.update()

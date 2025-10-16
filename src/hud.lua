@@ -22,6 +22,14 @@ hud.tileset = {
   tileSize = 32           -- Display size of tiles in panel
 }
 
+-- Debug mode
+hud.debugMode = true
+
+-- Tile selection protection
+hud.tileSelectionProtected = false
+hud.protectedTileId = nil
+hud.protectionTimer = 0
+
 function hud.leftBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
   love.graphics.rectangle("fill", 0, menuBar.height + hud.topBar.height, hud.leftBar.width, hud.leftBar.height - menuBar.height - hud.topBar.height)
@@ -38,6 +46,86 @@ function hud.rightBar.draw()
   
   -- Draw browse button at top of right panel
   hud.drawBrowseButton()
+  
+  -- DEBUG: Show mouse position and zone info
+  if hud.debugMode then
+    love.graphics.setColor(1, 1, 0)  -- Yellow text
+    local mx, my = love.mouse.getPosition()
+    local yPos = 200
+    love.graphics.print("Mouse: " .. mx .. "," .. my, 10, yPos)
+    yPos = yPos + 20
+    love.graphics.print("Zone: " .. (mouse.zone or "none"), 10, yPos)
+    yPos = yPos + 20
+    love.graphics.print("CurrentColor: " .. (mouse.currentColor or "none"), 10, yPos)
+    yPos = yPos + 20
+    
+    -- Show click areas count
+    if hud.tilesetClickAreas then
+      local totalAreas = 0
+      for tilesetIndex, areas in pairs(hud.tilesetClickAreas) do
+        totalAreas = totalAreas + #areas
+      end
+      love.graphics.print("Click areas: " .. totalAreas, 10, yPos)
+      yPos = yPos + 20
+    end
+    
+    -- Show tileset info
+    if grid.tilesets and #grid.tilesets > 0 then
+      love.graphics.print("Tilesets: " .. #grid.tilesets, 10, yPos)
+      yPos = yPos + 20
+      
+      if grid.tilesets[1] then
+        love.graphics.print("T1 startId: " .. (grid.tilesets[1].startTileId or "nil"), 10, yPos)
+        yPos = yPos + 20
+      end
+    end
+    
+    -- Show current tool
+    if tool and tool.current then
+      love.graphics.print("Tool: " .. tool.current, 10, yPos)
+      yPos = yPos + 20
+    end
+    
+    -- Show last click info
+    if hud.lastClickInfo then
+      love.graphics.print("Last click: " .. hud.lastClickInfo, 10, yPos)
+      yPos = yPos + 20
+    end
+    
+    -- Show tileset debug info
+    if hud.tilesetDebugInfo then
+      love.graphics.print(hud.tilesetDebugInfo, 10, yPos)
+      yPos = yPos + 20
+    end
+    
+    -- Show first tile mappings
+    if hud.firstTileMappings then
+      for i = 1, math.min(3, #hud.firstTileMappings) do
+        if hud.firstTileMappings[i] then
+          love.graphics.print(hud.firstTileMappings[i], 10, yPos)
+          yPos = yPos + 20
+        end
+      end
+    end
+    
+    -- Show color change debug
+    if hud.debugColorChange then
+      love.graphics.print("Color: " .. hud.debugColorChange, 10, yPos)
+      yPos = yPos + 20
+    end
+    
+    -- Show protection status
+    if hud.tileSelectionProtected then
+      love.graphics.print("Protected: " .. (hud.protectedTileId or "nil") .. " timer:" .. string.format("%.2f", hud.protectionTimer), 10, yPos)
+      yPos = yPos + 20
+    end
+    
+    -- Show tool blocking debug
+    if hud.debugToolBlocked then
+      love.graphics.print(hud.debugToolBlocked, 10, yPos)
+      yPos = yPos + 20
+    end
+  end
 end
 
 
@@ -162,15 +250,19 @@ function hud.drawMultiTilesets(pX, pY, spacing, pTileWidth)
     return
   end
   
+  -- Clear previous frame's click areas and section positions
+  hud.tileClickAreas = {}
+  hud.tilesetClickAreas = {}
+  hud.sectionPositions = {}
+  
   local width = hud.rightBar.width - pX * 2
   local rapport = pTileWidth / grid.tileWidth
   local nbColumn = math.floor(width / (pTileWidth + spacing))
   local paddingX = window.width - hud.rightBar.width + pX + (width - nbColumn * (pTileWidth + spacing)) / 2
   
-  -- Setup clipping for scrollable area
+  -- NO SCISSOR CLIPPING - this was causing coordinate mismatch
   local rightBarX = window.width - hud.rightBar.width
   local availableHeight = window.height - pY
-  love.graphics.setScissor(rightBarX, pY, hud.rightBar.width, availableHeight)
   
   local currentY = pY + hud.tileset.scrollOffset
   
@@ -179,12 +271,21 @@ function hud.drawMultiTilesets(pX, pY, spacing, pTileWidth)
     local sectionKey = "tileset_" .. tilesetIndex
     local isCollapsed = hud.tileset.collapsedSections[sectionKey]
     
-    -- Draw section header
+    -- Store section position for click detection
+    local sectionInfo = {
+      headerY = currentY,
+      headerHeight = hud.tileset.sectionHeight,
+      contentY = currentY + hud.tileset.sectionHeight + 5,
+      isCollapsed = isCollapsed
+    }
+    hud.sectionPositions[tilesetIndex] = sectionInfo
+    
+    -- Draw section header ONLY if visible
     local headerY = currentY
     local headerHeight = hud.tileset.sectionHeight
     
-    -- Header background
     if headerY + headerHeight >= pY and headerY <= pY + availableHeight then
+      -- Header background
       love.graphics.setColor(0.3, 0.3, 0.3)
       love.graphics.rectangle("fill", rightBarX + 5, headerY, width - 10, headerHeight)
       
@@ -211,15 +312,18 @@ function hud.drawMultiTilesets(pX, pY, spacing, pTileWidth)
       currentY = currentY + (tileRows * (pTileWidth + spacing)) + 10
     end
   end
-  
-  -- Reset clipping
-  love.graphics.setScissor()
 end
 
 function hud.drawTilesetSection(tileset, tilesetIndex, paddingX, startY, pTileWidth, spacing, nbColumn, clipY, clipHeight, rapport)
   local tilesDrawn = 0
   local currentRow = 0
   local currentCol = 0
+  
+  -- Initialize tileset-specific click areas if not exists
+  if not hud.tilesetClickAreas then
+    hud.tilesetClickAreas = {}
+  end
+  hud.tilesetClickAreas[tilesetIndex] = {}
   
   -- Calculate how many tiles this tileset has
   local tilesetWidth = tileset.image:getWidth()
@@ -228,6 +332,11 @@ function hud.drawTilesetSection(tileset, tilesetIndex, paddingX, startY, pTileWi
   local totalRows = math.floor(tilesetHeight / grid.tileHeight)
   local totalTiles = tilesPerRow * totalRows
   
+  -- Store debug info for visual display
+  if hud.debugMode and tilesetIndex == 1 and not hud.tilesetDebugInfo then
+    hud.tilesetDebugInfo = "T1: start=" .. tileset.startTileId .. " total=" .. totalTiles
+  end
+  
   for localTileId = 1, totalTiles do
     local globalTileId = tileset.startTileId + localTileId - 1
     
@@ -235,8 +344,23 @@ function hud.drawTilesetSection(tileset, tilesetIndex, paddingX, startY, pTileWi
       local x = paddingX + currentCol * (pTileWidth + spacing)
       local y = startY + currentRow * (pTileWidth + spacing)
       
-      -- Only draw if tile is visible in the clipped area
-      if y + pTileWidth >= clipY and y <= clipY + clipHeight then
+      -- ALWAYS store click area and draw - no clipping interference
+      table.insert(hud.tilesetClickAreas[tilesetIndex], {
+        x = x, y = y, w = pTileWidth, h = pTileWidth, 
+        tileId = globalTileId,
+        tilesetIndex = tilesetIndex
+      })
+      
+      -- Store first few tile mappings for debug
+      if hud.debugMode and tilesetIndex == 1 and tilesDrawn < 3 then
+        if not hud.firstTileMappings then
+          hud.firstTileMappings = {}
+        end
+        hud.firstTileMappings[tilesDrawn + 1] = "pos" .. (tilesDrawn + 1) .. "=tile" .. globalTileId
+      end
+      
+      -- Only draw if visible (simple bounds check)
+      if y + pTileWidth >= clipY and y <= clipY + clipHeight and y >= menuBar.height + hud.topBar.height then
         -- Highlight selected tile
         if mouse.currentColor == globalTileId then
           love.graphics.setColor(50/255, 50/255, 50/255)
@@ -250,6 +374,18 @@ function hud.drawTilesetSection(tileset, tilesetIndex, paddingX, startY, pTileWi
           love.graphics.draw(tileData.image, tileData.quad, x, y, 0, rapport, rapport)
         else
           love.graphics.draw(tileset.image, tileData, x, y, 0, rapport, rapport)
+        end
+        
+        -- DEBUG: Draw click area boundaries
+        if hud.debugMode then
+          love.graphics.setColor(1, 0, 0, 0.5)  -- Red with transparency
+          love.graphics.rectangle("line", x, y, pTileWidth, pTileWidth)
+          
+          -- Show tile ID on first few tiles
+          if tilesDrawn < 5 then
+            love.graphics.setColor(1, 1, 0)
+            love.graphics.print(globalTileId, x + 2, y + 2)
+          end
         end
       end
       
@@ -270,6 +406,18 @@ function hud.updateDimensions()
   hud.leftBar.height = window.height
   hud.rightBar.height = window.height
   hud.topBar.width = window.width
+end
+
+function hud.update(dt)
+  -- Clear tile selection protection after short delay
+  if hud.tileSelectionProtected then
+    hud.protectionTimer = hud.protectionTimer + dt
+    if hud.protectionTimer > 0.1 then  -- 100ms protection
+      hud.tileSelectionProtected = false
+      hud.protectedTileId = nil
+      hud.protectionTimer = 0
+    end
+  end
 end
 
 function hud.scrollTileset(deltaY)
@@ -315,90 +463,93 @@ function hud.mousepressed(x, y, button)
   return false
 end
 
+-- Per-tileset coordinate capture approach
+hud.tileClickAreas = {}
+hud.tilesetClickAreas = {}
+hud.sectionPositions = {}
+
 function hud.handleTilesetClick(x, y)
   if not grid.multiTilesetMode or not grid.tilesets then
     return false
   end
   
+  -- Store click info for visual debug
+  hud.lastClickInfo = "(" .. x .. "," .. y .. ")"
+  
+  -- First check section headers using stored positions
   local pX = 10
-  local pY = 70 + menuBar.height + hud.topBar.height  -- Same as main.lua drawTile call
-  local spacing = 1
-  local pTileWidth = hud.tileset.tileSize
   local width = hud.rightBar.width - pX * 2
-  local nbColumn = math.floor(width / (pTileWidth + spacing))
-  
   local rightBarX = window.width - hud.rightBar.width
-  local currentY = pY + hud.tileset.scrollOffset
   
-  -- Check each tileset section
-  for tilesetIndex, tileset in ipairs(grid.tilesets) do
+  for tilesetIndex, sectionInfo in pairs(hud.sectionPositions) do
     local sectionKey = "tileset_" .. tilesetIndex
-    local headerHeight = hud.tileset.sectionHeight
     
-    -- Check if click is on section header
-    if y >= currentY and y <= currentY + headerHeight and x >= rightBarX + 5 and x <= rightBarX + width - 5 then
-      -- Toggle collapse state
+    -- Check header click using stored position
+    if y >= sectionInfo.headerY and y <= sectionInfo.headerY + sectionInfo.headerHeight and 
+       x >= rightBarX + 5 and x <= rightBarX + width - 5 then
       hud.tileset.collapsedSections[sectionKey] = not hud.tileset.collapsedSections[sectionKey]
+      hud.lastClickInfo = hud.lastClickInfo .. " header " .. tilesetIndex
       return true
-    end
-    
-    currentY = currentY + headerHeight + 5
-    
-    -- Check tile clicks if section is not collapsed
-    if not hud.tileset.collapsedSections[sectionKey] then
-      local tileClicked = hud.checkTileClick(tileset, tilesetIndex, x, y, currentY, pX, pTileWidth, spacing, nbColumn)
-      if tileClicked then
-        return true
-      end
-      
-      -- Calculate section height to advance currentY
-      local tilesetWidth = tileset.image:getWidth()
-      local tilesetHeight = tileset.image:getHeight()
-      local tilesPerRow = math.floor(tilesetWidth / grid.tileWidth)
-      local totalRows = math.floor(tilesetHeight / grid.tileHeight)
-      local totalTiles = tilesPerRow * totalRows
-      local tileRows = math.ceil(totalTiles / nbColumn)
-      currentY = currentY + (tileRows * (pTileWidth + spacing)) + 10
     end
   end
   
+  -- Then check tile clicks - only in expanded sections
+  if hud.tilesetClickAreas then
+    for tilesetIndex, tileAreas in pairs(hud.tilesetClickAreas) do
+      local sectionKey = "tileset_" .. tilesetIndex
+      
+      -- Only check tiles if this section is NOT collapsed
+      if not hud.tileset.collapsedSections[sectionKey] then
+        for i, tileArea in ipairs(tileAreas) do
+          if x >= tileArea.x and x <= tileArea.x + tileArea.w and 
+             y >= tileArea.y and y <= tileArea.y + tileArea.h then
+            local oldColor = mouse.currentColor
+            local oldFillColor = mouse.fillColor
+            hud.lastClickInfo = hud.lastClickInfo .. " T" .. tilesetIndex .. " area" .. i .. " tile" .. tileArea.tileId
+            mouse.currentColor = tileArea.tileId
+            mouse.fillColor = tileArea.tileId  -- ALSO set fillColor to prevent override
+            
+            -- Switch to pen tool for painting (like old system did)
+            if tool.current ~= "fill" then 
+              tool.current = "pen" 
+            end
+            
+            -- Set protection flag to prevent tool system override
+            hud.tileSelectionProtected = true
+            hud.protectedTileId = tileArea.tileId
+            hud.protectionTimer = 0  -- Reset timer
+            
+            hud.debugColorChange = "Set " .. tileArea.tileId .. " (was " .. (oldColor or "nil") .. "/" .. (oldFillColor or "nil") .. ")"
+            return true
+          end
+        end
+      end
+    end
+  end
+  
+  hud.lastClickInfo = hud.lastClickInfo .. " no hit"
   return false
 end
 
-function hud.checkTileClick(tileset, tilesetIndex, clickX, clickY, startY, pX, pTileWidth, spacing, nbColumn)
-  local paddingX = window.width - hud.rightBar.width + pX + ((hud.rightBar.width - pX * 2) - nbColumn * (pTileWidth + spacing)) / 2
-  
+
+
+function hud.countTilesInSection(tileset, nbColumn)
+  -- Count tiles exactly like drawTilesetSection does
+  local tilesDrawn = 0
   local tilesetWidth = tileset.image:getWidth()
   local tilesetHeight = tileset.image:getHeight()
   local tilesPerRow = math.floor(tilesetWidth / grid.tileWidth)
   local totalRows = math.floor(tilesetHeight / grid.tileHeight)
   local totalTiles = tilesPerRow * totalRows
   
-  local currentRow = 0
-  local currentCol = 0
-  
   for localTileId = 1, totalTiles do
     local globalTileId = tileset.startTileId + localTileId - 1
-    
     if grid.tileTexture[globalTileId] then
-      local x = paddingX + currentCol * (pTileWidth + spacing)
-      local y = startY + currentRow * (pTileWidth + spacing)
-      
-      -- Check if click is within this tile's bounds
-      if clickX >= x and clickX <= x + pTileWidth and clickY >= y and clickY <= y + pTileWidth then
-        mouse.currentColor = globalTileId
-        return true
-      end
-      
-      currentCol = currentCol + 1
-      if currentCol >= nbColumn then
-        currentCol = 0
-        currentRow = currentRow + 1
-      end
+      tilesDrawn = tilesDrawn + 1
     end
   end
   
-  return false
+  return tilesDrawn
 end
 
 function hud.drawBrowseButton()

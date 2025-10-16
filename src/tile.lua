@@ -1,6 +1,11 @@
 local tile = {}
 
 function tile.update()
+  -- Skip old tile system when in multi-tileset mode to prevent conflicts
+  if grid.multiTilesetMode then
+    return
+  end
+  
   if mouse.zone == "rightBar" then 
     local pX = 10
     local pY = 100 + menuBar.height
