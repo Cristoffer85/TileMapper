@@ -2,12 +2,11 @@
 local menu = {}
 
 -- Import menu modules
-local mainMenu = require("menu.mainMenu")
-local newProject = require("menu.newProject.init")
+local newProject = require("menu.newProject.newProjectInit")
 local loadProject = require("menu.loadProject")
 local saveProject = require("menu.saveProject")
 
-menu.state = "none" -- none, main, newProject, loadProject
+menu.state = "none" -- none, newProject, loadProject
 menu.visible = false
 
 -- Menu dimensions and positioning
@@ -51,9 +50,7 @@ function menu.draw()
   love.graphics.rectangle("line", menu.x, menu.y, menu.width, menu.height)
   
   -- Delegate drawing to specific menu modules
-  if menu.state == "main" then
-    mainMenu.draw(menu)
-  elseif menu.state == "newProject" then
+  if menu.state == "newProject" then
     newProject.draw(menu)
   elseif menu.state == "loadProject" then
     loadProject.draw(menu)
@@ -64,9 +61,7 @@ function menu.mousepressed(x, y, button)
   if not menu.visible or button ~= 1 then return false end
   
   -- Delegate mouse handling to specific menu modules
-  if menu.state == "main" then
-    return mainMenu.mousepressed(x, y, menu)
-  elseif menu.state == "newProject" then
+  if menu.state == "newProject" then
     return newProject.mousepressed(x, y, menu)
   elseif menu.state == "loadProject" then
     return loadProject.mousepressed(x, y, menu)
@@ -90,11 +85,7 @@ function menu.keypressed(key)
   if not menu.visible then return false end
   
   if key == "escape" then
-    if menu.state == "main" then
-      menu.hide()
-    else
-      menu.show("main")
-    end
+    menu.hide()
     return true
   end
   

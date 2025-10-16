@@ -72,11 +72,14 @@ function projectValidator.createProject(data)
     return false, errors
   end
   
-  -- Create new project data
+  -- Create new project data with multi-tileset support
   local success, errorMsg = projectValidator.initializeProject(data)
   if not success then
     return false, {errorMsg}
   end
+  
+  -- Copy external tilesets to project tileset folder if needed
+  projectValidator.copyExternalTilesets(data)
   
   return true, {}
 end
@@ -197,6 +200,50 @@ function projectValidator.cloneData(original)
     end
   end
   return copy
+end
+
+function projectValidator.copyExternalTilesets(data)
+  local baseDirectory = love.filesystem.getSourceBaseDirectory()
+  local tilesetDir = baseDirectory .. "/tileset/"
+  
+  -- Copy primary tileset if it's external
+  if data.isExternalFile and data.tilesetPath then
+    projectValidator.copyTilesetFile(data.tilesetPath, data.tilesetDisplayName, tilesetDir)
+  end
+  
+  -- Copy additional tilesets
+  if data.additionalTilesets then
+    for i, tileset in ipairs(data.additionalTilesets) do
+      if tileset.isExternal and tileset.path then
+        projectValidator.copyTilesetFile(tileset.path, tileset.displayName, tilesetDir)
+      end
+    end
+  end
+end
+
+function projectValidator.copyTilesetFile(sourcePath, displayName, targetDir)
+  -- Read source file
+  local sourceFile = io.open(sourcePath, "rb")
+  if not sourceFile then
+    love.window.showMessageBox("Copy Error", "Could not read tileset: " .. sourcePath, "error")
+    return false
+  end
+  
+  local data = sourceFile:read("*all")
+  sourceFile:close()
+  
+  -- Write to target directory
+  local targetPath = targetDir .. displayName
+  local targetFile = io.open(targetPath, "wb")
+  if not targetFile then
+    love.window.showMessageBox("Copy Error", "Could not write tileset to: " .. targetPath, "error")
+    return false
+  end
+  
+  targetFile:write(data)
+  targetFile:close()
+  
+  return true
 end
 
 return projectValidator

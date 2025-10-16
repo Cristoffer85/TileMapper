@@ -28,11 +28,58 @@ local function writeToFileWithExtension(extension, cb)
 end
 
 function export.txt(file)
+  if grid.multiTilesetMode then
+    export.txtMultiTileset(file)
+  else
+    export.txtSingleTileset(file)
+  end
+end
+
+function export.txtSingleTileset(file)
   local i
   for i = 1, #grid.map-1 do
     file:write(tostring(table.concat(grid.map[i], ","))..",\n")
   end
   file:write(tostring(table.concat(grid.map[#grid.map], ","))..",")
+end
+
+function export.txtMultiTileset(file)
+  for row = 1, #grid.map do
+    local line = {}
+    for col = 1, #grid.map[row] do
+      local tileId = grid.map[row][col]
+      if tileId == 0 then
+        table.insert(line, "0:0")  -- Empty tile
+      else
+        -- Find which tileset this tile belongs to
+        local tilesetIndex, localTileId = export.findTilesetForTile(tileId)
+        table.insert(line, tilesetIndex .. ":" .. localTileId)
+      end
+    end
+    
+    if row < #grid.map then
+      file:write(table.concat(line, ",") .. ",\n")
+    else
+      file:write(table.concat(line, ",") .. ",")
+    end
+  end
+end
+
+function export.findTilesetForTile(globalTileId)
+  if not grid.tilesets or #grid.tilesets == 0 then
+    return 0, globalTileId  -- Fallback to single tileset
+  end
+  
+  -- Find which tileset contains this global tile ID
+  for i, tileset in ipairs(grid.tilesets) do
+    local nextStartId = (i < #grid.tilesets) and grid.tilesets[i + 1].startTileId or math.huge
+    if globalTileId >= tileset.startTileId and globalTileId < nextStartId then
+      local localTileId = globalTileId - tileset.startTileId + 1
+      return i - 1, localTileId  -- Return 0-based tileset index
+    end
+  end
+  
+  return 0, globalTileId  -- Fallback
 end
 
 function export.lua(file)

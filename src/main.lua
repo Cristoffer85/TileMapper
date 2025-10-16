@@ -22,7 +22,7 @@ hud = require("hud")
 export = require("export")
 import = require("import")
 input = require("input")
-menu = require("menu")
+menu = require("menu.menuInit")
 menuBar = require("menuBar")
 
 
@@ -49,6 +49,11 @@ function love.mousepressed(x, y, touch)
   
   -- Menu input has priority
   if menu.mousepressed(x, y, touch) then
+    return
+  end
+  
+  -- HUD input for tileset selection
+  if hud.mousepressed(x, y, touch) then
     return
   end
   

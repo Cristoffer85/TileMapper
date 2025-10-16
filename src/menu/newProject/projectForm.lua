@@ -143,7 +143,7 @@ function projectForm.mousepressed(x, y, menu, data, controller)
       controller.create(menu)
       return true
     elseif menu.isMouseOver(projectForm.buttons.cancel.x, projectForm.buttons.cancel.y, projectForm.buttons.cancel.w, projectForm.buttons.cancel.h) then
-      menu.show("main")
+      menu.hide()
       return true
     end
   end
@@ -179,6 +179,30 @@ function projectForm.keypressed(key, menu, data)
   end
   
   return false
+end
+
+function projectForm.addAdditionalTileset(data)
+  -- Initialize additional tilesets array if needed
+  if not data.additionalTilesets then
+    data.additionalTilesets = {}
+  end
+  
+  -- Open file browser for additional tileset
+  local tilesetBrowser = require("menu.newProject.tilesetBrowser")
+  
+  -- Create temporary data object for the additional tileset
+  local tempData = {}
+  
+  tilesetBrowser.openFileBrowser(tempData)
+  
+  -- If a file was selected, add it to additional tilesets
+  if tempData.tilesetPath then
+    table.insert(data.additionalTilesets, {
+      path = tempData.tilesetPath,
+      displayName = tempData.tilesetDisplayName,
+      isExternal = tempData.isExternalFile
+    })
+  end
 end
 
 return projectForm

@@ -30,8 +30,31 @@ end
 
 function import.txt(file)
   grid.map = {}
+  local isMultiTilesetFormat = false
+  
+  -- Check first line to determine format
+  local firstLine = file:read("*line")
+  if firstLine and string.find(firstLine, ":") then
+    isMultiTilesetFormat = true
+  end
+  
+  -- Reset file position
+  file:seek("set", 0)
+  
+  if isMultiTilesetFormat then
+    import.txtMultiTileset(file)
+  else
+    import.txtSingleTileset(file)
+  end
+  
+  grid.width = #grid.map[1] or 0
+  grid.height = #grid.map
+  action.resetPos.f()
+end
+
+function import.txtSingleTileset(file)
   for line in file:lines() do
-    contentFolder = line
+    local contentFolder = line
     contentFolder = string.gsub(contentFolder, " ", "")
     if string.find(contentFolder, ",") ~= nil then
       grid.map[#grid.map+1] = {}
@@ -48,9 +71,45 @@ function import.txt(file)
       end
     end
   end
-  grid.width = #grid.map[#grid.map]
-  grid.height = #grid.map
-  action.resetPos.f()
+end
+
+function import.txtMultiTileset(file)
+  for line in file:lines() do
+    local contentFolder = line
+    contentFolder = string.gsub(contentFolder, " ", "")
+    if string.find(contentFolder, ",") ~= nil then
+      grid.map[#grid.map+1] = {}
+      
+      -- Parse tileset:tile format
+      local regex = "(%d+):(%d+)%p"
+      local j = true
+      while j do
+        local tilesetIndex, localTileId = string.match(contentFolder, regex)
+        if tilesetIndex ~= nil and localTileId ~= nil then
+          contentFolder = string.gsub(contentFolder, regex, "", 1)
+          
+          -- Convert back to global tile ID
+          local globalTileId = import.convertToGlobalTileId(tonumber(tilesetIndex), tonumber(localTileId))
+          grid.map[#grid.map][#grid.map[#grid.map]+1] = globalTileId
+        else
+          j = false
+        end
+      end
+    end
+  end
+end
+
+function import.convertToGlobalTileId(tilesetIndex, localTileId)
+  if localTileId == 0 then
+    return 0  -- Empty tile
+  end
+  
+  if not grid.tilesets or not grid.tilesets[tilesetIndex + 1] then
+    return localTileId  -- Fallback to local ID
+  end
+  
+  local tileset = grid.tilesets[tilesetIndex + 1]  -- Convert from 0-based to 1-based
+  return tileset.startTileId + localTileId - 1
 end
 
 function import.lua(file)

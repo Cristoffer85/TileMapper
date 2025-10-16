@@ -78,7 +78,7 @@ function loadProject.mousepressed(x, y, menu)
   
   local buttons = loadProject.buttons
   if buttons and menu.isMouseOver(buttons.back.x, buttons.back.y, buttons.back.w, buttons.back.h) then
-    menu.show("main")
+    menu.hide()
     return true
   end
   

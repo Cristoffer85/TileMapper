@@ -8,9 +8,9 @@ local projectValidator = require("menu.newProject.projectValidator")
 
 -- State management
 newProject.data = {
-  mapWidth = "64",
-  mapHeight = "64", 
-  tileSize = "32",
+  mapWidth = "128",
+  mapHeight = "128",
+  tileSize = "64",
   tilesetPath = "",
   projectName = "NewProject",
   selectedField = 1
