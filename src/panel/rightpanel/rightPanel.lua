@@ -10,9 +10,9 @@ rightPanel.height = window.height
 
 function rightPanel.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
-  love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + hud.topBar.height, rightPanel.width, rightPanel.height - menuBar.height - hud.topBar.height)
+  love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + 40, rightPanel.width, rightPanel.height - menuBar.height - 40)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + hud.topBar.height, 1, rightPanel.height - menuBar.height - hud.topBar.height)
+  love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + 40, 1, rightPanel.height - menuBar.height - 40)
   
   -- Draw browse button at top of right panel
   browseButton.draw()

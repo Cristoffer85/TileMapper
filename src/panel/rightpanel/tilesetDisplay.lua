@@ -170,7 +170,7 @@ function tilesetDisplay.drawTilesetSection(tileset, tilesetIndex, paddingX, star
       })
       
       -- Only draw if visible
-      if y + pTileWidth >= clipY and y <= clipY + clipHeight and y >= menuBar.height + hud.topBar.height then
+      if y + pTileWidth >= clipY and y <= clipY + clipHeight and y >= menuBar.height + 40 then  -- topBar.height = 40
         -- Highlight selected tile
         if mouse.currentColor == globalTileId then
           love.graphics.setColor(50/255, 50/255, 50/255)

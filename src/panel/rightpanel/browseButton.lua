@@ -6,7 +6,7 @@ browseButton.button = nil
 function browseButton.draw()
   local rightBarX = window.width - 200  -- rightPanel.width
   local buttonX = rightBarX + 10
-  local buttonY = menuBar.height + hud.topBar.height + 10
+  local buttonY = menuBar.height + 40 + 10  -- topBar.height = 40
   local buttonWidth = 200 - 20  -- rightPanel.width - 20
   local buttonHeight = 30
   
