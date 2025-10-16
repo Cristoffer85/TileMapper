@@ -22,7 +22,7 @@ function tool.update()
   if mouse.zone == "leftBar" then 
     local spacing = 10
     local pX = 5
-    local pY = 50 + menuBar.height
+    local pY = 50 + menuBar.height + hud.topBar.height
     local height = 30
     local i
     for i = 1, #tool.list do
