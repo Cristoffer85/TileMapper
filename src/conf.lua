@@ -1,7 +1,7 @@
 function love.conf(t)
     t.accelerometerjoystick = false
  
-    t.window.title = "2D Map Editor - github.com/mDeram"
+    t.window.title = "TileMapper"
     t.window.width = 1200
     t.window.height = 700
     t.window.resizable = true

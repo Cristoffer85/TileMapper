@@ -24,17 +24,20 @@ hud.tileset = {
 
 function hud.leftBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
-  love.graphics.rectangle("fill", 0, menuBar.height, hud.leftBar.width, hud.leftBar.height - menuBar.height)
+  love.graphics.rectangle("fill", 0, menuBar.height + hud.topBar.height, hud.leftBar.width, hud.leftBar.height - menuBar.height - hud.topBar.height)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle("fill", hud.leftBar.width-1, menuBar.height, 1, hud.leftBar.height - menuBar.height)
+  love.graphics.rectangle("fill", hud.leftBar.width-1, menuBar.height + hud.topBar.height, 1, hud.leftBar.height - menuBar.height - hud.topBar.height)
 end
 
 
 function hud.rightBar.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
-  love.graphics.rectangle("fill", window.width-hud.rightBar.width, menuBar.height, hud.rightBar.width, hud.rightBar.height - menuBar.height)
+  love.graphics.rectangle("fill", window.width-hud.rightBar.width, menuBar.height + hud.topBar.height, hud.rightBar.width, hud.rightBar.height - menuBar.height - hud.topBar.height)
   love.graphics.setColor(0, 0, 0)
-  love.graphics.rectangle("fill", window.width-hud.rightBar.width, menuBar.height, 1, hud.rightBar.height - menuBar.height)
+  love.graphics.rectangle("fill", window.width-hud.rightBar.width, menuBar.height + hud.topBar.height, 1, hud.rightBar.height - menuBar.height - hud.topBar.height)
+  
+  -- Draw browse button at top of right panel
+  hud.drawBrowseButton()
 end
 
 
@@ -94,6 +97,15 @@ end
 
 
 function hud.drawTile(pX, pY, spacing, pTileWidth)
+  -- Check if any tilesets are available
+  if not grid.tileTexture or (#grid.tileTexture == 0 and (not grid.tilesets or #grid.tilesets == 0)) then
+    -- Draw "No tilesets" message
+    love.graphics.setColor(0.6, 0.6, 0.6)
+    love.graphics.print("No tilesets available", window.width - hud.rightBar.width + 10, pY)
+    love.graphics.print("Use 'Browse Tileset' to add one", window.width - hud.rightBar.width + 10, pY + 20)
+    return
+  end
+  
   if grid.multiTilesetMode then
     hud.drawMultiTilesets(pX, pY, spacing, pTileWidth)
   else
@@ -102,6 +114,11 @@ function hud.drawTile(pX, pY, spacing, pTileWidth)
 end
 
 function hud.drawSingleTileset(pX, pY, spacing, pTileWidth)
+  -- Safety check
+  if not grid.tileTexture or #grid.tileTexture == 0 then
+    return
+  end
+  
   local width = hud.rightBar.width-pX*2
   local rapport = pTileWidth/grid.tileWidth
   local nbColumn = math.floor((width)/(pTileWidth+spacing))
@@ -261,7 +278,7 @@ function hud.scrollTileset(deltaY)
     
     -- Calculate bounds to prevent over-scrolling
     local pX = 10
-    local pY = 100
+    local pY = 70 + menuBar.height + hud.topBar.height
     local spacing = 1
     local pTileWidth = 32
     local width = hud.rightBar.width-pX*2
@@ -281,8 +298,19 @@ function hud.scrollTileset(deltaY)
 end
 
 function hud.mousepressed(x, y, button)
-  if button == 1 and mouse.zone == "rightBar" then
-    return hud.handleTilesetClick(x, y)
+  if button == 1 then
+    -- Check browse button first - use direct coordinate check instead of relying on mouse.zone
+    if hud.browseButton and 
+       x >= hud.browseButton.x and x <= hud.browseButton.x + hud.browseButton.width and
+       y >= hud.browseButton.y and y <= hud.browseButton.y + hud.browseButton.height then
+      hud.openTilesetBrowser()
+      return true
+    end
+    
+    -- Handle tileset clicks only if in right bar
+    if mouse.zone == "rightBar" then
+      return hud.handleTilesetClick(x, y)
+    end
   end
   return false
 end
@@ -293,7 +321,7 @@ function hud.handleTilesetClick(x, y)
   end
   
   local pX = 10
-  local pY = 100 + menuBar.height  -- Same as main.lua drawTile call
+  local pY = 70 + menuBar.height + hud.topBar.height  -- Same as main.lua drawTile call
   local spacing = 1
   local pTileWidth = hud.tileset.tileSize
   local width = hud.rightBar.width - pX * 2
@@ -371,6 +399,142 @@ function hud.checkTileClick(tileset, tilesetIndex, clickX, clickY, startY, pX, p
   end
   
   return false
+end
+
+function hud.drawBrowseButton()
+  local rightBarX = window.width - hud.rightBar.width
+  local buttonX = rightBarX + 10
+  local buttonY = menuBar.height + hud.topBar.height + 10
+  local buttonWidth = hud.rightBar.width - 20
+  local buttonHeight = 30
+  
+  -- Button background
+  love.graphics.setColor(0.3, 0.5, 0.7)
+  love.graphics.rectangle("fill", buttonX, buttonY, buttonWidth, buttonHeight)
+  
+  -- Button border
+  love.graphics.setColor(0.8, 0.8, 0.8)
+  love.graphics.rectangle("line", buttonX, buttonY, buttonWidth, buttonHeight)
+  
+  -- Button text
+  love.graphics.setColor(1, 1, 1)
+  local buttonText = "Browse Tileset"
+  local textWidth = love.graphics.getFont():getWidth(buttonText)
+  love.graphics.print(buttonText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 8)
+  
+  -- Store button for click detection
+  hud.browseButton = {x = buttonX, y = buttonY, width = buttonWidth, height = buttonHeight}
+end
+
+function hud.openTilesetBrowser()
+  local ffi = require("ffi")
+  
+  -- Define Windows API functions
+  ffi.cdef[[
+    typedef struct {
+      unsigned long lStructSize;
+      void* hwndOwner;
+      void* hInstance;
+      const char* lpstrFilter;
+      char* lpstrCustomFilter;
+      unsigned long nMaxCustFilter;
+      unsigned long nFilterIndex;
+      char* lpstrFile;
+      unsigned long nMaxFile;
+      char* lpstrFileTitle;
+      unsigned long nMaxFileTitle;
+      const char* lpstrInitialDir;
+      const char* lpstrTitle;
+      unsigned long Flags;
+      unsigned short nFileOffset;
+      unsigned short nFileExtension;
+      const char* lpstrDefExt;
+      void* lCustData;
+      void* lpfnHook;
+      const char* lpTemplateName;
+    } OPENFILENAMEA;
+    
+    int GetOpenFileNameA(OPENFILENAMEA* lpofn);
+    void* GetModuleHandleA(const char* lpModuleName);
+    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
+  ]]
+  
+  -- Load required Windows DLLs
+  local comdlg32 = ffi.load("comdlg32")
+  local kernel32 = ffi.load("kernel32")
+  
+  -- Create file buffer
+  local fileBuffer = ffi.new("char[260]")  -- MAX_PATH
+  fileBuffer[0] = 0  -- Null terminate
+  
+  -- Get user's Pictures folder path
+  local picturesPath = ffi.new("char[260]")
+  kernel32.GetEnvironmentVariableA("USERPROFILE", picturesPath, 260)
+  local initialDir = ffi.string(picturesPath) .. "\\Pictures"
+  
+  -- Set up OPENFILENAME structure
+  local ofn = ffi.new("OPENFILENAMEA")
+  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
+  ofn.hwndOwner = nil
+  ofn.lpstrFilter = "PNG Images (*.png)\0*.png\0All Files (*.*)\0*.*\0\0"
+  ofn.nFilterIndex = 1
+  ofn.lpstrFile = fileBuffer
+  ofn.nMaxFile = 260
+  ofn.lpstrInitialDir = initialDir
+  ofn.lpstrTitle = "Select Tileset Image"
+  ofn.Flags = 0x00001000 + 0x00000004  -- OFN_FILEMUSTEXIST + OFN_HIDEREADONLY
+  
+  -- Show file dialog
+  local result = comdlg32.GetOpenFileNameA(ofn)
+  
+  if result ~= 0 then
+    -- File was selected
+    local filePath = ffi.string(fileBuffer)
+    
+    if filePath ~= "" and filePath:lower():match("%.png$") then
+      local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
+      
+      -- Copy file to tileset folder
+      hud.copyTilesetToProject(filePath, filename)
+      
+      -- Force refresh tileset detection and HUD state
+      grid.multiTilesetMode = false  -- Reset to trigger re-detection
+      grid.autoDetectTilesets()
+      grid.load()
+      
+      -- Reset HUD tileset state
+      hud.tileset.scrollOffset = 0
+      hud.tileset.collapsedSections = {}
+    end
+  end
+end
+
+function hud.copyTilesetToProject(sourcePath, filename)
+  local baseDirectory = love.filesystem.getSourceBaseDirectory()
+  local targetDir = baseDirectory .. "/tileset/"
+  local targetPath = targetDir .. filename
+  
+  -- Read source file
+  local sourceFile = io.open(sourcePath, "rb")
+  if not sourceFile then
+    love.window.showMessageBox("Copy Error", "Could not read tileset: " .. sourcePath, "error")
+    return false
+  end
+  
+  local data = sourceFile:read("*all")
+  sourceFile:close()
+  
+  -- Write to target directory
+  local targetFile = io.open(targetPath, "wb")
+  if not targetFile then
+    love.window.showMessageBox("Copy Error", "Could not write tileset to: " .. targetPath, "error")
+    return false
+  end
+  
+  targetFile:write(data)
+  targetFile:close()
+  
+  return true
 end
 
 return hud

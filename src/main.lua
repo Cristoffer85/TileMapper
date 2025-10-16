@@ -120,12 +120,12 @@ function love.draw()
   hud.rightBar.draw()
   hud.topBar.draw()
   
-  hud.drawButtonLeftBar(5, 50 + menuBar.height, 10, 30, tool.list)
-  hud.drawButtonLeftBar(5, 400 + menuBar.height, 10, 30, action.list)
-  hud.drawButtonLeftBar(5, 650 + menuBar.height, 10, 30, action.importantList)
+  hud.drawButtonLeftBar(5, 50 + menuBar.height + hud.topBar.height, 10, 30, tool.list)
+  hud.drawButtonLeftBar(5, 400 + menuBar.height + hud.topBar.height, 10, 30, action.list)
+  hud.drawButtonLeftBar(5, 650 + menuBar.height + hud.topBar.height, 10, 30, action.importantList)
   hud.drawButtonTopBar(450, 5 + menuBar.height, 10, 30, export.list, "Export")
   hud.drawButtonTopBar(700, 5 + menuBar.height, 10, 30, import.list, "Import")
-  hud.drawTile(10, 100 + menuBar.height, 1, 32)
+  hud.drawTile(10, 70 + menuBar.height + hud.topBar.height, 1, 32)
   input.draw()
   
   -- Draw menu bar
