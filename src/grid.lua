@@ -265,4 +265,67 @@ function grid.autoDetectTilesets()
   end
 end
 
+-- Fast function to add a single new tileset without full reload
+function grid.addSingleTileset(tilesetPath)
+  -- Ensure we're in multi-tileset mode
+  if not grid.multiTilesetMode then
+    grid.multiTilesetMode = true
+    grid.tilesetPaths = grid.tilesetPaths or {}
+    grid.tilesets = grid.tilesets or {}
+    grid.tileTexture = grid.tileTexture or {}
+  end
+  
+  -- Check if tileset already exists
+  local relativePath = "tileset/" .. tilesetPath:match("([^/\\]+)$")
+  for _, existingPath in ipairs(grid.tilesetPaths) do
+    if existingPath == relativePath then
+      return -- Already exists, no need to add
+    end
+  end
+  
+  -- Add to paths list
+  table.insert(grid.tilesetPaths, relativePath)
+  table.sort(grid.tilesetPaths) -- Keep sorted
+  
+  -- Load the new tileset image
+  local tileset = grid.loadTilesetImage(relativePath)
+  if not tileset then
+    return false
+  end
+  
+  -- Find the next available tile ID
+  local nextTileId = #grid.tileTexture + 1
+  
+  -- Add tileset to the list
+  local tilesetIndex = #grid.tilesets + 1
+  grid.tilesets[tilesetIndex] = {
+    image = tileset,
+    path = relativePath,
+    startTileId = nextTileId
+  }
+  
+  -- Generate quads only for the new tileset
+  local nbColumn = math.floor(tileset:getWidth() / grid.tileWidth)
+  local nbLine = math.floor(tileset:getHeight() / grid.tileHeight)
+  
+  for l = 1, nbLine do
+    for c = 1, nbColumn do
+      grid.tileTexture[nextTileId] = {
+        quad = love.graphics.newQuad(
+          (c-1)*grid.tileWidth,
+          (l-1)*grid.tileHeight,
+          grid.tileWidth,
+          grid.tileHeight,
+          tileset:getWidth(),
+          tileset:getHeight()),
+        tilesetIndex = tilesetIndex,
+        image = tileset
+      }
+      nextTileId = nextTileId + 1
+    end
+  end
+  
+  return true
+end
+
 return grid

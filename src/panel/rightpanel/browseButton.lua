@@ -107,16 +107,14 @@ function browseButton.openTilesetBrowser()
       local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
       
       -- Copy file to tileset folder
-      browseButton.copyTilesetToProject(filePath, filename)
-      
-      -- Force refresh tileset detection and HUD state
-      grid.multiTilesetMode = false  -- Reset to trigger re-detection
-      grid.autoDetectTilesets()
-      grid.load()
-      
-      -- Reset HUD tileset state
-      local tilesetScroll = require("panel.rightpanel.tilesetScroll")
-      tilesetScroll.resetScroll()
+      if browseButton.copyTilesetToProject(filePath, filename) then
+        -- Fast addition of single tileset (no full reload needed!)
+        if grid.addSingleTileset(filename) then
+          -- Reset scroll position for better UX
+          local tilesetScroll = require("panel.rightpanel.tilesetScroll")
+          tilesetScroll.resetScroll()
+        end
+      end
     end
   end
 end
