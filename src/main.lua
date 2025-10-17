@@ -11,19 +11,19 @@ window.width = 1200
 window.height = 700
 Font = love.graphics.newFont(16)
 
-data = require("data")
-camera = require("camera")
-action = require("action")
-tool = require("tool")
-tile = require("tile")
-mouse = require("mouse")
-grid = require("grid")
+data = require("data.data")
+camera = require("ui.camera")
+action = require("input.action")
+tool = require("tools.tool")
+tile = require("ui.tile")
+mouse = require("input.mouse")
+grid = require("ui.grid")
 hud = require("panel.panelInit")
-export = require("export")
-import = require("import")
-input = require("input")
+export = require("tools.export")
+import = require("tools.import")
+input = require("input.input")
 menu = require("menu.menuInit")
-menuBar = require("menuBar")
+menuBar = require("main.menuBar")
 
 
 

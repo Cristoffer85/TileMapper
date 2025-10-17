@@ -1,6 +1,6 @@
 -- Top panel main coordinator
 local topPanel = {}
-local button = require("button")
+local button = require("ui.button")
 
 topPanel.width = window.width
 topPanel.height = 40
