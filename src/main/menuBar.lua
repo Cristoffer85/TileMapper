@@ -1,20 +1,141 @@
 local menuBar = {}
+local import = require("main.import")
+local export = require("main.export")
 menuBar.dropdownOpenTime = 0
 
 menuBar.height = 25
+-- Utility: import file dialog for import menu actions
+local function importFileDialog(extension, importFunc)
+  local ffi = require("ffi")
+  ffi.cdef[[
+    typedef struct {
+      unsigned long lStructSize;
+      void* hwndOwner;
+      void* hInstance;
+      const char* lpstrFilter;
+      char* lpstrCustomFilter;
+      unsigned long nMaxCustFilter;
+      unsigned long nFilterIndex;
+      char* lpstrFile;
+      unsigned long nMaxFile;
+      char* lpstrFileTitle;
+      unsigned long nMaxFileTitle;
+      const char* lpstrInitialDir;
+      const char* lpstrTitle;
+      unsigned long Flags;
+      unsigned short nFileOffset;
+      unsigned short nFileExtension;
+      const char* lpstrDefExt;
+      void* lCustData;
+      void* lpfnHook;
+      const char* lpTemplateName;
+    } OPENFILENAMEA;
+    int GetOpenFileNameA(OPENFILENAMEA* lpofn);
+    void* GetModuleHandleA(const char* lpModuleName);
+    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
+  ]]
+  local comdlg32 = ffi.load("comdlg32")
+  local kernel32 = ffi.load("kernel32")
+  local fileBuffer = ffi.new("char[260]")
+  fileBuffer[0] = 0
+  local userProfile = ffi.new("char[260]")
+  kernel32.GetEnvironmentVariableA("USERPROFILE", userProfile, 260)
+  local initialDir = ffi.string(userProfile) .. "\\Documents"
+  local ofn = ffi.new("OPENFILENAMEA")
+  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
+  ofn.hwndOwner = nil
+  ofn.lpstrFilter = string.format("%s Files (*%s)\0*%s\0All Files (*.*)\0*.*\0\0", extension:upper(), extension, extension)
+  ofn.nFilterIndex = 1
+  ofn.lpstrFile = fileBuffer
+  ofn.nMaxFile = 260
+  ofn.lpstrInitialDir = initialDir
+  ofn.lpstrTitle = "Select File to Import"
+  ofn.Flags = 0x00000008 -- OFN_FILEMUSTEXIST
+  local result = comdlg32.GetOpenFileNameA(ofn)
+  if result ~= 0 then
+    local filename = ffi.string(fileBuffer)
+    local file = io.open(filename, "r")
+    if file then
+      importFunc(file)
+      io.close(file)
+    else
+      love.window.showMessageBox("Import Error", "Could not open file: "..filename, "error")
+    end
+  end
+end
+
+local function exportFileDialog(extension, exportFunc)
+  local ffi = require("ffi")
+  ffi.cdef[[
+    typedef struct {
+      unsigned long lStructSize;
+      void* hwndOwner;
+      void* hInstance;
+      const char* lpstrFilter;
+      char* lpstrCustomFilter;
+      unsigned long nMaxCustFilter;
+      unsigned long nFilterIndex;
+      char* lpstrFile;
+      unsigned long nMaxFile;
+      char* lpstrFileTitle;
+      unsigned long nMaxFileTitle;
+      const char* lpstrInitialDir;
+      const char* lpstrTitle;
+      unsigned long Flags;
+      unsigned short nFileOffset;
+      unsigned short nFileExtension;
+      const char* lpstrDefExt;
+      void* lCustData;
+      void* lpfnHook;
+      const char* lpTemplateName;
+    } OPENFILENAMEA;
+    int GetSaveFileNameA(OPENFILENAMEA* lpofn);
+    void* GetModuleHandleA(const char* lpModuleName);
+    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
+  ]]
+  local comdlg32 = ffi.load("comdlg32")
+  local kernel32 = ffi.load("kernel32")
+  local fileBuffer = ffi.new("char[260]")
+  fileBuffer[0] = 0
+  local userProfile = ffi.new("char[260]")
+  kernel32.GetEnvironmentVariableA("USERPROFILE", userProfile, 260)
+  local initialDir = ffi.string(userProfile) .. "\\Documents"
+  local ofn = ffi.new("OPENFILENAMEA")
+  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
+  ofn.hwndOwner = nil
+  ofn.lpstrFilter = string.format("%s Files (*%s)\0*%s\0All Files (*.*)\0*.*\0\0", extension:upper(), extension, extension)
+  ofn.nFilterIndex = 1
+  ofn.lpstrFile = fileBuffer
+  ofn.nMaxFile = 260
+  ofn.lpstrInitialDir = initialDir
+  ofn.lpstrTitle = "Select Export Location"
+  ofn.Flags = 0x00000002 + 0x00000004  -- OFN_OVERWRITEPROMPT + OFN_HIDEREADONLY
+  local result = comdlg32.GetSaveFileNameA(ofn)
+  if result ~= 0 then
+    local filename = ffi.string(fileBuffer)
+    local file = io.open(filename, "w+")
+    if file then
+      exportFunc(file)
+      io.close(file)
+    else
+      love.window.showMessageBox("Export Error", "Could not open file: "..filename, "error")
+    end
+  end
+end
+
 menuBar.items = {
   {
     label = "File",
     items = {
       {label = "New Map", action = function() menu.show("newMap") end},
       {label = "divider"},
-      {label = "Import .txt", action = function() import.fromTXT() end},
-      {label = "Import json", action = function() import.fromJSON() end},
-      {label = "Import lua", action = function() import.fromLua() end},
+      {label = "Import .txt", action = function() importFileDialog(".txt", import.txt) end},
+      {label = "Import json", action = function() importFileDialog(".json", import.json) end},
+      {label = "Import lua", action = function() importFileDialog(".lua", import.lua) end},
       {label = "divider"},
-      {label = "Export .txt", action = function() export.toTXT() end},
-      {label = "Export json", action = function() export.toJSON() end},
-      {label = "Export lua", action = function() export.toLua() end}
+  {label = "Export .txt", action = function() exportFileDialog(".txt", export.txt) end},
+  {label = "Export json", action = function() exportFileDialog(".json", export.json) end},
+  {label = "Export lua", action = function() exportFileDialog(".lua", export.lua) end}
     }
   },
   {
@@ -41,34 +162,27 @@ function menuBar.draw()
   -- Menu items
   local x = 5
   love.graphics.setColor(0, 0, 0)
-  
   for i, item in ipairs(menuBar.items) do
     local itemWidth = love.graphics.getFont():getWidth(item.label) + 16
-    
-    -- Highlight if hovered or active dropdown
     if menuBar.isMouseOverMenuItem(x, 0, itemWidth, menuBar.height) or menuBar.activeDropdown == i then
       love.graphics.setColor(0.8, 0.8, 1.0)
       love.graphics.rectangle("fill", x, 0, itemWidth, menuBar.height)
       love.graphics.setColor(0, 0, 0)
     end
-    
-    -- Draw text
     love.graphics.print(item.label, x + 8, 5)
-    
-    -- Store position for click detection
     item.x = x
     item.y = 0
     item.w = itemWidth
     item.h = menuBar.height
-    
     x = x + itemWidth
   end
-  
+
   -- Draw active dropdown
   if menuBar.activeDropdown then
     menuBar.drawDropdown(menuBar.activeDropdown)
   end
 end
+-- removed extra end
 
 function menuBar.drawDropdown(menuIndex)
   local menuItem = menuBar.items[menuIndex]

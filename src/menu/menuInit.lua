@@ -3,10 +3,8 @@ local menu = {}
 
 -- Import menu modules
 local newProject = require("menu.newProject.newProjectInit")
-local loadProject = require("menu.loadProject")
-local saveProject = require("menu.saveProject")
 
-menu.state = "none" -- none, newProject, loadProject
+menu.state = "none" -- none, newProject
 menu.visible = false
 
 -- Menu dimensions and positioning
@@ -55,8 +53,6 @@ function menu.draw()
   -- Delegate drawing to specific menu modules
   if menu.state == "newProject" or menu.state == "newMap" then
     newProject.draw(menu)
-  elseif menu.state == "loadProject" then
-    loadProject.draw(menu)
   end
 end
 
@@ -66,10 +62,7 @@ function menu.mousepressed(x, y, button)
   -- Delegate mouse handling to specific menu modules
   if menu.state == "newProject" or menu.state == "newMap" then
     return newProject.mousepressed(x, y, menu)
-  elseif menu.state == "loadProject" then
-    return loadProject.mousepressed(x, y, menu)
   end
-  
   return false
 end
 
@@ -99,9 +92,5 @@ function menu.keypressed(key)
   
   return false
 end
-
--- Expose utility functions for submodules
-menu.saveProject = saveProject
-menu.loadProject = loadProject
 
 return menu

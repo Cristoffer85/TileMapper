@@ -20,8 +20,8 @@ tile = require("ui.tile")
 mouse = require("input.mouse")
 grid = require("ui.grid")
 hud = require("panel.panelInit")
-export = require("tools.export")
-import = require("tools.import")
+export = require("main.export")
+import = require("main.import")
 input = require("input.input")
 menu = require("menu.menuInit")
 menuBar = require("main.menuBar")
@@ -77,8 +77,7 @@ function love.mousepressed(x, y, touch)
   end
   
   action.mousepressed(touch)
-  import.mousepressed(touch)
-  export.mousepressed(touch)
+  -- removed import/export mousepressed
   input.mousepressed(touch)
 end
 
@@ -154,8 +153,7 @@ function love.draw()
   hud.drawButtonLeftBar(5, 50 + menuBar.height + hud.topBar.height, 10, 30, tool.list)
   hud.drawButtonLeftBar(5, 400 + menuBar.height + hud.topBar.height, 10, 30, action.list)
   hud.drawButtonLeftBar(5, 650 + menuBar.height + hud.topBar.height, 10, 30, action.importantList)
-  hud.drawButtonTopBar(450, 5 + menuBar.height, 10, 30, export.list, "Export")
-  hud.drawButtonTopBar(700, 5 + menuBar.height, 10, 30, import.list, "Import")
+  -- removed export/import buttons from top panel
   hud.drawTile(10, 70 + menuBar.height + hud.topBar.height, 1, 32)
   input.draw()
   

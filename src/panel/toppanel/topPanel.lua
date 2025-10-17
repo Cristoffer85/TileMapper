@@ -41,7 +41,7 @@ function topPanel.drawButtonTopBar(pX, pY, spacing, width, name, title)
     -- Shift the title text down by menuBar.height
     love.graphics.print(title, pX-Font:getWidth(title)-10, menuBar.height + Font:getHeight(title)/2)
   end
-  local i
+  if not name then return end
   for i = 1, #name do
     local x = pX+(i-1)*spacing+(i-1)*width
     if mouse.collide(x, pY, width, width) then
