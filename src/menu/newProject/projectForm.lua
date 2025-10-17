@@ -11,7 +11,7 @@ projectForm.fields = {
 function projectForm.draw(menu, data)
   love.graphics.setColor(1, 1, 1)
   
-  local title = "Create New Map"
+  local title = "Create New Project"
   local titleWidth = love.graphics.getFont():getWidth(title)
   love.graphics.print(title, menu.x + (menu.width - titleWidth) / 2, menu.y + 20)
   
@@ -29,10 +29,10 @@ function projectForm.drawInputFields(menu, data)
   local inputWidth = 150
   
   local fields = {
-    {label = "Map Name:", key = "projectName"},
+    {label = "Project Name:", key = "projectName"},
     {label = "Map Width:", key = "mapWidth"},
     {label = "Map Height:", key = "mapHeight"},
-    {label = "Tile Size:", key = "tileSize"},
+    {label = "Tile Size:", key = "tileSize"}
   }
   
   for i, field in ipairs(fields) do
@@ -149,7 +149,5 @@ function projectForm.keypressed(key, menu, data)
   
   return false
 end
-
-
 
 return projectForm

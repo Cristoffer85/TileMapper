@@ -29,7 +29,6 @@ function love.load()
   
   data.load()
   grid.load()
-  input.load()
   
   -- Load button images after Love2D is properly initialized
   hud.button.load()

@@ -1,12 +1,6 @@
 local input = {}
 input.list = {"c", "l"}
 
-function input.load()
-  local x = 80
-  input.add(input.list[1], "width", x, 10 + menuBar.height, input.list[2])
-  input.add(input.list[2], "height", x + 150, 10 + menuBar.height, input.list[1])
-end
-
 function input.add(name, toUpdate, x, y, nextTab)
   input[name] = {}
   input[name].toUpdate = toUpdate
@@ -92,7 +86,7 @@ function input.keypressed(key)
     grid.mapLoad()
   end
 end
- 
+
 function input.draw()
   for i = 1, #input.list do
     local curInput = input[input.list[i]]
@@ -111,11 +105,8 @@ function input.draw()
         love.graphics.draw(hud.button.bgInput.off, x, y)
       end
     end
-  love.graphics.setFont(Font)
-  local name = curInput.toUpdate..":"
-  -- Align descriptive text with the input field (no extra menuBar.height)
-  love.graphics.print(name, curInput.x - Font:getWidth(name) - 4, curInput.y)
-  love.graphics.print(curInput.value, curInput.x + 16, curInput.y + 1)
+    love.graphics.setFont(Font)
+    love.graphics.print(curInput.value, curInput.x + 16, curInput.y + 1)
   end
 end
 

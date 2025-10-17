@@ -14,8 +14,6 @@ newProject.data = {
   selectedField = 1
 }
 
-
-
 function newProject.draw(menu)
   projectForm.draw(menu, newProject.data)
 end
@@ -31,8 +29,6 @@ end
 function newProject.keypressed(key, menu)
   return projectForm.keypressed(key, menu, newProject.data)
 end
-
-
 
 function newProject.create(menu)
   local success, errors = projectValidator.createProject(newProject.data)
