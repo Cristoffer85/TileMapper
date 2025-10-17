@@ -13,7 +13,7 @@ Export maps to txt, json or lua format.
 
 ## Preview
 
-![preview](img/preview.png)
+![preview](src\assets\img\preview.png)
 
 Tileset from https://ansimuz.itch.io/grotto-escape-game-art-pack
 

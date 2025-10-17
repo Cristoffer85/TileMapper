@@ -33,6 +33,9 @@ function love.load()
   grid.load()
   input.load()
   
+  -- Load button images after Love2D is properly initialized
+  hud.button.load()
+  
   window.grid = {}
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
   window.grid.height = window.height-hud.topBar.height-menuBar.height

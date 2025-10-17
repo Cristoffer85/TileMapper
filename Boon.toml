@@ -62,8 +62,8 @@ ignore_list = [
     "release",
 
     # Custom
-    "graph/button/toolButtonSelect.png",
-    "graph/button/toolButtonTileSwapper.png",
+    "assets/button/toolButtonSelect.png",
+    "assets/button/toolButtonTileSwapper.png",
 ]
 
 # List of targets to build for
