@@ -1,35 +1,35 @@
--- Project form UI and input handling
-local projectForm = {}
+-- Map form UI and input handling
+local mapForm = {}
 
-projectForm.fields = {
-  "projectName",
+mapForm.fields = {
+  "mapName",
   "mapWidth", 
   "mapHeight",
   "tileSize"
 }
 
-function projectForm.draw(menu, data)
+function mapForm.draw(menu, data)
   love.graphics.setColor(1, 1, 1)
   
-  local title = "Create New Project"
+  local title = "Create New Map"
   local titleWidth = love.graphics.getFont():getWidth(title)
   love.graphics.print(title, menu.x + (menu.width - titleWidth) / 2, menu.y + 20)
   
   -- Draw input fields
-  projectForm.drawInputFields(menu, data)
+  mapForm.drawInputFields(menu, data)
   
   -- Draw action buttons
-  projectForm.drawActionButtons(menu)
+  mapForm.drawActionButtons(menu)
 end
 
-function projectForm.drawInputFields(menu, data)
+function mapForm.drawInputFields(menu, data)
   local fieldY = menu.y + 60
   local fieldHeight = 25
   local labelWidth = 120
   local inputWidth = 150
   
   local fields = {
-    {label = "Project Name:", key = "projectName"},
+    {label = "Map Name:", key = "mapName"},
     {label = "Map Width:", key = "mapWidth"},
     {label = "Map Height:", key = "mapHeight"},
     {label = "Tile Size:", key = "tileSize"}
@@ -58,7 +58,7 @@ function projectForm.drawInputFields(menu, data)
   end
 end
 
-function projectForm.drawActionButtons(menu)
+function mapForm.drawActionButtons(menu)
   local fieldY = menu.y + 60
   local fieldHeight = 25
   local buttonY = fieldY + 6 * (fieldHeight + 5) + 30
@@ -83,20 +83,20 @@ function projectForm.drawActionButtons(menu)
   love.graphics.print("Cancel", cancelButtonX + 30, buttonY + 3)
   
   -- Store button info
-  projectForm.buttons = {
+  mapForm.buttons = {
     create = {x = createButtonX, y = buttonY, w = buttonW, h = fieldHeight},
     cancel = {x = cancelButtonX, y = buttonY, w = buttonW, h = fieldHeight}
   }
 end
 
-function projectForm.mousepressed(x, y, menu, data, controller)
+function mapForm.mousepressed(x, y, menu, data, controller)
   -- Check input field clicks
   local fieldY = menu.y + 60
   local fieldHeight = 25
   local labelWidth = 120
   local inputWidth = 150
   
-  for i = 1, #projectForm.fields do
+  for i = 1, #mapForm.fields do
     local fieldY_pos = fieldY + (i - 1) * (fieldHeight + 5)
     local inputX = menu.x + 20 + labelWidth
     
@@ -107,11 +107,11 @@ function projectForm.mousepressed(x, y, menu, data, controller)
   end
   
   -- Check action buttons
-  if projectForm.buttons then
-    if menu.isMouseOver(projectForm.buttons.create.x, projectForm.buttons.create.y, projectForm.buttons.create.w, projectForm.buttons.create.h) then
+  if mapForm.buttons then
+    if menu.isMouseOver(mapForm.buttons.create.x, mapForm.buttons.create.y, mapForm.buttons.create.w, mapForm.buttons.create.h) then
       controller.create(menu)
       return true
-    elseif menu.isMouseOver(projectForm.buttons.cancel.x, projectForm.buttons.cancel.y, projectForm.buttons.cancel.w, projectForm.buttons.cancel.h) then
+    elseif menu.isMouseOver(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
       menu.hide()
       return true
     end
@@ -120,8 +120,8 @@ function projectForm.mousepressed(x, y, menu, data, controller)
   return false
 end
 
-function projectForm.textinput(text, data)
-  local field = projectForm.fields[data.selectedField]
+function mapForm.textinput(text, data)
+  local field = mapForm.fields[data.selectedField]
   if field then
     data[field] = (data[field] or "") .. text
     return true
@@ -129,15 +129,15 @@ function projectForm.textinput(text, data)
   return false
 end
 
-function projectForm.keypressed(key, menu, data)
+function mapForm.keypressed(key, menu, data)
   if key == "tab" then
     data.selectedField = data.selectedField + 1
-    if data.selectedField > #projectForm.fields then
+    if data.selectedField > #mapForm.fields then
       data.selectedField = 1
     end
     return true
   elseif key == "backspace" then
-    local field = projectForm.fields[data.selectedField]
+  local field = mapForm.fields[data.selectedField]
     if field and data[field] then
       data[field] = string.sub(data[field], 1, -2)
     end
@@ -150,4 +150,4 @@ function projectForm.keypressed(key, menu, data)
   return false
 end
 
-return projectForm
+return mapForm

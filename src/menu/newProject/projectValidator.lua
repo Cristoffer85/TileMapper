@@ -1,12 +1,12 @@
--- Project validation and creation logic
-local projectValidator = {}
+-- Map validation and creation logic
+local mapValidator = {}
 
-function projectValidator.validateInput(data)
+function mapValidator.validateInput(data)
   local errors = {}
   
   -- Check required fields
-  if not data.projectName or data.projectName:match("^%s*$") then
-    table.insert(errors, "Project name is required")
+  if not data.mapName or data.mapName:match("^%s*$") then
+    table.insert(errors, "Map name is required")
   end
   
   -- Convert strings to numbers and validate
@@ -37,7 +37,7 @@ function projectValidator.validateInput(data)
   return errors
 end
 
-function projectValidator.validateTilesetExists(tilesetPath)
+function mapValidator.validateTilesetExists(tilesetPath)
   if not tilesetPath or tilesetPath == "" then
     return false
   end
@@ -66,25 +66,25 @@ function projectValidator.validateTilesetExists(tilesetPath)
   end
 end
 
-function projectValidator.createProject(data)
-  local errors = projectValidator.validateInput(data)
+function mapValidator.createMap(data)
+  local errors = mapValidator.validateInput(data)
   if #errors > 0 then
     return false, errors
   end
   
   -- Create new project data with multi-tileset support
-  local success, errorMsg = projectValidator.initializeProject(data)
+  local success, errorMsg = mapValidator.initializeMap(data)
   if not success then
     return false, {errorMsg}
   end
   
   -- Copy external tilesets to project tileset folder if needed
-  projectValidator.copyExternalTilesets(data)
+  mapValidator.copyExternalTilesets(data)
   
   return true, {}
 end
 
-function projectValidator.initializeProject(data)
+function mapValidator.initializeMap(data)
   -- Initialize grid data
   if not _G.grid then
     return false, "Grid system not available"
@@ -118,13 +118,13 @@ function projectValidator.initializeProject(data)
     
     -- Update global data
     if not _G.data then _G.data = {} end
-    _G.data.projectName = data.projectName
-    _G.data.tilesetPath = data.tilesetPath
-    _G.data.tilesetDisplayName = data.tilesetDisplayName or data.tilesetPath
-    _G.data.isExternalFile = data.isExternalFile or false
-    _G.data.mapWidth = mapWidth
-    _G.data.mapHeight = mapHeight
-    _G.data.tileSize = tileSize
+  _G.data.mapName = data.mapName
+  _G.data.tilesetPath = data.tilesetPath
+  _G.data.tilesetDisplayName = data.tilesetDisplayName or data.tilesetPath
+  _G.data.isExternalFile = data.isExternalFile or false
+  _G.data.mapWidth = mapWidth
+  _G.data.mapHeight = mapHeight
+  _G.data.tileSize = tileSize
     
     -- Initialize the grid map and load tileset
     _G.grid.mapLoad()
@@ -144,13 +144,13 @@ function projectValidator.initializeProject(data)
   end)
   
   if not success then
-    return false, "Failed to initialize project"
+  return false, "Failed to initialize map"
   end
   
   return true, nil
 end
 
-function projectValidator.sanitizeFilename(filename)
+function mapValidator.sanitizeFilename(filename)
   if not filename then return "untitled" end
   
   -- Remove or replace invalid characters
@@ -167,7 +167,7 @@ function projectValidator.sanitizeFilename(filename)
   return sanitized
 end
 
-function projectValidator.formatErrors(errors)
+function mapValidator.formatErrors(errors)
   if not errors or #errors == 0 then
     return ""
   end
@@ -180,9 +180,9 @@ function projectValidator.formatErrors(errors)
   return formatted
 end
 
-function projectValidator.getDefaultValues()
+function mapValidator.getDefaultValues()
   return {
-    projectName = "New Project",
+    mapName = "New Map",
     mapWidth = "20",
     mapHeight = "15",
     tileSize = "32",
@@ -190,42 +190,42 @@ function projectValidator.getDefaultValues()
   }
 end
 
-function projectValidator.cloneData(original)
+function mapValidator.cloneData(original)
   local copy = {}
   for key, value in pairs(original) do
     if type(value) == "table" then
-      copy[key] = projectValidator.cloneData(value)
+  copy[key] = mapValidator.cloneData(value)
     else
-      copy[key] = value
+  copy[key] = value
     end
   end
   return copy
 end
 
-function projectValidator.copyExternalTilesets(data)
+function mapValidator.copyExternalTilesets(data)
   local baseDirectory = love.filesystem.getSourceBaseDirectory()
   local tilesetDir = baseDirectory .. "/tileset/"
   
   -- Copy primary tileset if it's external
   if data.isExternalFile and data.tilesetPath then
-    projectValidator.copyTilesetFile(data.tilesetPath, data.tilesetDisplayName, tilesetDir)
+    mapValidator.copyTilesetFile(data.tilesetPath, data.tilesetDisplayName, tilesetDir)
   end
   
   -- Copy additional tilesets
   if data.additionalTilesets then
     for i, tileset in ipairs(data.additionalTilesets) do
       if tileset.isExternal and tileset.path then
-        projectValidator.copyTilesetFile(tileset.path, tileset.displayName, tilesetDir)
+  mapValidator.copyTilesetFile(tileset.path, tileset.displayName, tilesetDir)
       end
     end
   end
 end
 
-function projectValidator.copyTilesetFile(sourcePath, displayName, targetDir)
+function mapValidator.copyTilesetFile(sourcePath, displayName, targetDir)
   -- Read source file
   local sourceFile = io.open(sourcePath, "rb")
   if not sourceFile then
-    love.window.showMessageBox("Copy Error", "Could not read tileset: " .. sourcePath, "error")
+  love.window.showMessageBox("Copy Error", "Could not read tileset: " .. sourcePath, "error")
     return false
   end
   
@@ -236,7 +236,7 @@ function projectValidator.copyTilesetFile(sourcePath, displayName, targetDir)
   local targetPath = targetDir .. displayName
   local targetFile = io.open(targetPath, "wb")
   if not targetFile then
-    love.window.showMessageBox("Copy Error", "Could not write tileset to: " .. targetPath, "error")
+  love.window.showMessageBox("Copy Error", "Could not write tileset to: " .. targetPath, "error")
     return false
   end
   
@@ -246,4 +246,4 @@ function projectValidator.copyTilesetFile(sourcePath, displayName, targetDir)
   return true
 end
 
-return projectValidator
+return mapValidator
