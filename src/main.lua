@@ -27,7 +27,6 @@ menuBar = require("main.menuBar")
 
 function love.load()
   
-  data.load()
   grid.load()
   
   -- Load button images after Love2D is properly initialized

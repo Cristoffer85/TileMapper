@@ -25,14 +25,7 @@ function mapValidator.validateInput(data)
     table.insert(errors, "Tile size must be a number greater than 0")
   end
   
-  if not data.tilesetPath or data.tilesetPath == "" then
-    table.insert(errors, "Tileset file is required")
-  else
-    -- Validate tileset file exists
-    if not mapValidator.validateTilesetExists(data.tilesetPath) then
-      table.insert(errors, "Tileset file '" .. data.tilesetPath .. "' not found in /tileset folder")
-    end
-  end
+  -- Tileset file is NOT required for new map creation. Tilesets are imported/selected later.
   
   return errors
 end
@@ -103,28 +96,28 @@ function mapValidator.initializeMap(data)
     _G.grid.tileWidth = tileSize
     _G.grid.tileHeight = tileSize
     
-    -- Determine if it's an external file or local tileset
-    local tilesetPath
-    if data.isExternalFile and (data.tilesetPath:match("^[A-Za-z]:") or data.tilesetPath:match("^/")) then
-      -- External file - use full path
-      tilesetPath = data.tilesetPath
+    -- Only set tileset path if provided
+    if data.tilesetPath and data.tilesetPath ~= "" then
+      local tilesetPath
+      if data.isExternalFile and (data.tilesetPath:match("^[A-Za-z]:") or data.tilesetPath:match("^/")) then
+        tilesetPath = data.tilesetPath
+      else
+        tilesetPath = "tileset/" .. data.tilesetPath
+      end
+      _G.grid.tileSetPath = tilesetPath
     else
-      -- Local file - use relative path
-      tilesetPath = "tileset/" .. data.tilesetPath
+      _G.grid.tileSetPath = nil -- No tileset for new map
     end
-    
-    -- Update grid tileset path
-    _G.grid.tileSetPath = tilesetPath
-    
+
     -- Update global data
     if not _G.data then _G.data = {} end
-  _G.data.mapName = data.mapName
-  _G.data.tilesetPath = data.tilesetPath
-  _G.data.tilesetDisplayName = data.tilesetDisplayName or data.tilesetPath
-  _G.data.isExternalFile = data.isExternalFile or false
-  _G.data.mapWidth = mapWidth
-  _G.data.mapHeight = mapHeight
-  _G.data.tileSize = tileSize
+    _G.data.mapName = data.mapName
+    _G.data.tilesetPath = data.tilesetPath
+    _G.data.tilesetDisplayName = data.tilesetDisplayName or data.tilesetPath
+    _G.data.isExternalFile = data.isExternalFile or false
+    _G.data.mapWidth = mapWidth
+    _G.data.mapHeight = mapHeight
+    _G.data.tileSize = tileSize
     
     -- Initialize the grid map and load tileset
     _G.grid.mapLoad()

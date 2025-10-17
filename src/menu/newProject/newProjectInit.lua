@@ -38,7 +38,6 @@ function newMap.create(menu)
   end
   
   menu.hide()
-  love.window.showMessageBox("Map Created", "New map '" .. newMap.data.mapName .. "' created successfully!", "info")
 end
 
 return newMap

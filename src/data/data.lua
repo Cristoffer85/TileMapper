@@ -1,31 +1,5 @@
 local data = {}
 
-local function formatString(str)
-  return string.gsub(string.gsub(str, "\r", ""), "\n", "")
-end
-
-function data.load()
-  local filename = "editor.txt"
-  local contentFile = {}
-  local baseDirectory = love.filesystem.getSourceBaseDirectory()
-  local i = 0
-  for line in io.lines(baseDirectory.."/"..filename) do
-    i = i+1
-    contentFile[i] = formatString(line)
-  end
-  export.path = baseDirectory.."/"..contentFile[2]
-  import.path = baseDirectory.."/"..contentFile[2]
-  
-  -- Check if this is the new multi-tileset format
-  if contentFile[3] == "tileset_count" then
-    -- New multi-tileset format
-    data.loadMultiTilesetFormat(contentFile)
-  else
-    -- Legacy single tileset format
-    data.loadLegacyFormat(contentFile)
-  end
-end
-
 function data.loadMultiTilesetFormat(contentFile)
   local tilesetCount = tonumber(contentFile[4])
   

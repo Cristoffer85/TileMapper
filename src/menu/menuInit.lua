@@ -19,6 +19,7 @@ function menu.show(menuType)
   menu.state = menuType or "main"
   menu.visible = true
   menu.updatePosition()
+  -- Debug info will be drawn visually, not in message boxes
 end
 
 function menu.hide()
@@ -38,19 +39,21 @@ end
 
 function menu.draw()
   if not menu.visible then return end
-  
+  -- Draw debug info as yellow text overlay (top-left corner)
+  love.graphics.setColor(1, 1, 0)
+  love.graphics.print("menu.visible=" .. tostring(menu.visible), 10, 10)
+  love.graphics.print("menu.state=" .. tostring(menu.state), 10, 30)
+  love.graphics.setColor(1, 1, 1)
   -- Semi-transparent overlay
   love.graphics.setColor(0, 0, 0, 0.7)
   love.graphics.rectangle("fill", 0, 0, window.width, window.height)
-  
   -- Menu background
   love.graphics.setColor(0.2, 0.2, 0.2)
   love.graphics.rectangle("fill", menu.x, menu.y, menu.width, menu.height)
   love.graphics.setColor(0.8, 0.8, 0.8)
   love.graphics.rectangle("line", menu.x, menu.y, menu.width, menu.height)
-  
   -- Delegate drawing to specific menu modules
-  if menu.state == "newProject" then
+  if menu.state == "newProject" or menu.state == "newMap" then
     newProject.draw(menu)
   elseif menu.state == "loadProject" then
     loadProject.draw(menu)
@@ -61,7 +64,7 @@ function menu.mousepressed(x, y, button)
   if not menu.visible or button ~= 1 then return false end
   
   -- Delegate mouse handling to specific menu modules
-  if menu.state == "newProject" then
+  if menu.state == "newProject" or menu.state == "newMap" then
     return newProject.mousepressed(x, y, menu)
   elseif menu.state == "loadProject" then
     return loadProject.mousepressed(x, y, menu)
@@ -74,7 +77,7 @@ function menu.textinput(text)
   if not menu.visible then return false end
   
   -- Delegate text input to specific menu modules
-  if menu.state == "newProject" then
+  if menu.state == "newProject" or menu.state == "newMap" then
     return newProject.textinput(text)
   end
   
@@ -90,7 +93,7 @@ function menu.keypressed(key)
   end
   
   -- Delegate key handling to specific menu modules
-  if menu.state == "newProject" then
+  if menu.state == "newProject" or menu.state == "newMap" then
     return newProject.keypressed(key, menu)
   end
   
