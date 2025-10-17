@@ -115,7 +115,7 @@ end
 function import.lua(file)
   grid.map = {}
   for line in file:lines() do
-    contentFolder = line
+    local contentFolder = line
     contentFolder = string.gsub(contentFolder, " ", "")
     contentFolder = string.gsub(contentFolder, "{", "")
     contentFolder = string.gsub(contentFolder, "^}$", "")
@@ -123,15 +123,23 @@ function import.lua(file)
     contentFolder = string.gsub(contentFolder, ",,", ",")
     if string.find(contentFolder, ",") ~= nil then
       grid.map[#grid.map+1] = {}
-      local regex = "(%d+)%p"
+  local regexMulti = "(%d+):(%d+)%p"
+  local regexSingle = "(%d+)%p"
       local j = true
       while j do
-        local result = string.match(contentFolder, regex)
-        if result ~= nil then
-          contentFolder = string.gsub(contentFolder, regex, "", 1)
-          grid.map[#grid.map][#grid.map[#grid.map]+1] = tonumber(result)
+        local tilesetIndex, localTileId = string.match(contentFolder, regexMulti)
+        if tilesetIndex ~= nil and localTileId ~= nil then
+          contentFolder = string.gsub(contentFolder, regexMulti, "", 1)
+          local globalTileId = import.convertToGlobalTileId(tonumber(tilesetIndex), tonumber(localTileId))
+          grid.map[#grid.map][#grid.map[#grid.map]+1] = globalTileId
         else
-          j = false
+          local result = string.match(contentFolder, regexSingle)
+          if result ~= nil then
+            contentFolder = string.gsub(contentFolder, regexSingle, "", 1)
+            grid.map[#grid.map][#grid.map[#grid.map]+1] = tonumber(result)
+          else
+            j = false
+          end
         end
       end
     end
@@ -144,27 +152,35 @@ end
 function import.json(file)
   grid.map = {}
   for line in file:lines() do
-    contentFolder = line
+    local contentFolder = line
     contentFolder = string.gsub(contentFolder, " ", "")
     contentFolder = string.gsub(contentFolder, "{", "")
     contentFolder = string.gsub(contentFolder, "}", "")
     contentFolder = string.gsub(contentFolder, "%[", "")
     contentFolder = string.gsub(contentFolder, "%]%]", ",")
     contentFolder = string.gsub(contentFolder, "%]", "")
-    contentFolder = string.gsub(contentFolder, "\"%a+\"", "")
+    contentFolder = string.gsub(contentFolder, '\"map\"', "")
     contentFolder = string.gsub(contentFolder, ":", "")
     contentFolder = string.gsub(contentFolder, " ", "")
     if string.find(contentFolder, ",") ~= nil then
       grid.map[#grid.map+1] = {}
-      local regex = "(%d+)%p"
+  local regexMulti = "(%d+):(%d+)%p"
+  local regexSingle = "(%d+)%p"
       local j = true
       while j do
-        local result = string.match(contentFolder, regex)
-        if result ~= nil then
-          contentFolder = string.gsub(contentFolder, regex, "", 1)
-          grid.map[#grid.map][#grid.map[#grid.map]+1] = tonumber(result)
+        local tilesetIndex, localTileId = string.match(contentFolder, regexMulti)
+        if tilesetIndex ~= nil and localTileId ~= nil then
+          contentFolder = string.gsub(contentFolder, regexMulti, "", 1)
+          local globalTileId = import.convertToGlobalTileId(tonumber(tilesetIndex), tonumber(localTileId))
+          grid.map[#grid.map][#grid.map[#grid.map]+1] = globalTileId
         else
-          j = false
+          local result = string.match(contentFolder, regexSingle)
+          if result ~= nil then
+            contentFolder = string.gsub(contentFolder, regexSingle, "", 1)
+            grid.map[#grid.map][#grid.map[#grid.map]+1] = tonumber(result)
+          else
+            j = false
+          end
         end
       end
     end

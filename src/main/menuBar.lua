@@ -6,10 +6,10 @@ menuBar.items = {
   {
     label = "File",
     items = {
-      {label = "New Project", action = function() menu.show("newProject") end},
-      {label = "Open Project", action = function() menu.loadProject.showDialog() end},
-      {label = "Save Project", action = function() menu.saveProject.save() end},
-      {label = "Save As...", action = function() menu.saveProject.saveAs() end},
+  {label = "New Map", action = function() menu.show("newMap") end},
+  {label = "Open Map", action = function() menu.loadMap.showDialog() end},
+  {label = "Save Map", action = function() menu.saveMap.save() end},
+  {label = "Save As...", action = function() menu.saveMap.saveAs() end},
       {label = "separator"},
       {label = "Load Tileset", action = function() menuBar.loadTilesetDialog() end},
       {label = "separator"},
@@ -216,7 +216,7 @@ end
 -- Menu action functions
 function menuBar.loadTilesetDialog()
   love.window.showMessageBox("Load Tileset", 
-    "To load a different tileset:\n1. Place the image in the 'tileset' folder\n2. Use File > New Project to specify the tileset\n\nCurrent tileset: " .. (grid.tileSetPath or "none"), 
+  "To load a different tileset:\n1. Place the image in the 'tileset' folder\n2. Use File > New Map to specify the tileset\n\nCurrent tileset: " .. (grid.tileSetPath or "none"), 
     "info")
 end
 
@@ -268,7 +268,7 @@ end
 
 function menuBar.resizeMap()
   love.window.showMessageBox("Resize Map", 
-    "To resize the map, use File > New Project and set new dimensions.\n\nNote: This will create a new map and clear existing content.", 
+  "To resize the map, use File > New Map and set new dimensions.\n\nNote: This will create a new map and clear existing content.", 
     "info")
 end
 

@@ -25,6 +25,22 @@ local function writeToFileWithExtension(extension, cb)
   cb(file)
 
   io.close(file)
+
+  -- Also export tilesetIndex.txt if multiTilesetMode is enabled
+  if grid.multiTilesetMode and grid.tilesets and #grid.tilesets > 0 then
+    local tilesetIndexFile = io.open(export.baseDirectory.."/map/tilesetIndex.txt", "w+")
+    for i, tileset in ipairs(grid.tilesets) do
+      -- Index is i-1 to match export format
+      local tilesetName = "tileset" .. i
+      if tileset.name ~= nil then
+        tilesetName = tileset.name
+      elseif tileset.path ~= nil then
+        tilesetName = tileset.path
+      end
+      tilesetIndexFile:write((i-1) .. ": " .. tilesetName .. "\n")
+    end
+    io.close(tilesetIndexFile)
+  end
 end
 
 function export.txt(file)
@@ -84,21 +100,54 @@ end
 
 function export.lua(file)
   file:write("local map = {\n")
-  local i
-  for i = 1, #grid.map-1 do
-    file:write("  {"..tostring(table.concat(grid.map[i], ", ")).."},\n")
+  for row = 1, #grid.map do
+    local line = {}
+    for col = 1, #grid.map[row] do
+      local tileId = grid.map[row][col]
+      if grid.multiTilesetMode then
+        if tileId == 0 then
+          table.insert(line, '"0:0"')
+        else
+          local tilesetIndex, localTileId = export.findTilesetForTile(tileId)
+          table.insert(line, '"' .. tilesetIndex .. ':' .. localTileId .. '"')
+        end
+      else
+        table.insert(line, tostring(tileId))
+      end
+    end
+    if row < #grid.map then
+      file:write("  {" .. table.concat(line, ", ") .. "},\n")
+    else
+      file:write("  {" .. table.concat(line, ", ") .. "}\n")
+    end
   end
-  file:write("  {"..tostring(table.concat(grid.map[#grid.map], ", ")).."}\n}\n")
-  file:write("return map")
+  file:write("}\nreturn map")
 end
 
 function export.json(file)
-  file:write("{\n\"map\" : [["..tostring(table.concat(grid.map[1], ", ")).."],\n")
-  local i
-  for i = 2, #grid.map-1 do
-    file:write("          ["..tostring(table.concat(grid.map[i], ", ")).."],\n")
+  file:write("{\n\"map\" : [\n")
+  for row = 1, #grid.map do
+    local line = {}
+    for col = 1, #grid.map[row] do
+      local tileId = grid.map[row][col]
+      if grid.multiTilesetMode then
+        if tileId == 0 then
+          table.insert(line, '\"0:0\"')
+        else
+          local tilesetIndex, localTileId = export.findTilesetForTile(tileId)
+          table.insert(line, '\"' .. tilesetIndex .. ':' .. localTileId .. '\"')
+        end
+      else
+        table.insert(line, tostring(tileId))
+      end
+    end
+    if row < #grid.map then
+      file:write("    [" .. table.concat(line, ", ") .. "],\n")
+    else
+      file:write("    [" .. table.concat(line, ", ") .. "]\n")
+    end
   end
-  file:write("          ["..tostring(table.concat(grid.map[#grid.map], ", ")).."]]\n}")
+  file:write("]\n}")
 end
 
 
