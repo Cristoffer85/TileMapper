@@ -11,10 +11,8 @@ menuBar.items = {
   {label = "Save Map", action = function() menu.saveMap.save() end},
   {label = "Save As...", action = function() menu.saveMap.saveAs() end},
       {label = "separator"},
-      {label = "Load Tileset", action = function() menuBar.loadTilesetDialog() end},
-      {label = "separator"},
-      {label = "Export Map", action = function() menuBar.showExportOptions() end},
-      {label = "Import Map", action = function() menuBar.showImportOptions() end}
+  {label = "Export Map", action = function() menuBar.showExportOptions() end},
+  {label = "Import Map", action = function() menuBar.showImportOptions() end}
     }
   },
   {
@@ -211,13 +209,6 @@ function menuBar.update()
   if menuBar.activeDropdown and mouseY > menuBar.height + (menuBar.dropdownHeight or 0) + 10 then
     -- Add some tolerance before auto-closing
   end
-end
-
--- Menu action functions
-function menuBar.loadTilesetDialog()
-  love.window.showMessageBox("Load Tileset", 
-  "To load a different tileset:\n1. Place the image in the 'tileset' folder\n2. Use File > New Map to specify the tileset\n\nCurrent tileset: " .. (grid.tileSetPath or "none"), 
-    "info")
 end
 
 function menuBar.showExportOptions()
