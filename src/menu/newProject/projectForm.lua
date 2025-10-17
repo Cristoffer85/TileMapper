@@ -5,14 +5,13 @@ projectForm.fields = {
   "projectName",
   "mapWidth", 
   "mapHeight",
-  "tileSize",
-  "tilesetPath"
+  "tileSize"
 }
 
 function projectForm.draw(menu, data)
   love.graphics.setColor(1, 1, 1)
   
-  local title = "Create New Project"
+  local title = "Create New Map"
   local titleWidth = love.graphics.getFont():getWidth(title)
   love.graphics.print(title, menu.x + (menu.width - titleWidth) / 2, menu.y + 20)
   
@@ -30,11 +29,10 @@ function projectForm.drawInputFields(menu, data)
   local inputWidth = 150
   
   local fields = {
-    {label = "Project Name:", key = "projectName"},
+    {label = "Map Name:", key = "projectName"},
     {label = "Map Width:", key = "mapWidth"},
     {label = "Map Height:", key = "mapHeight"},
     {label = "Tile Size:", key = "tileSize"},
-    {label = "Tileset Path:", key = "tilesetPath", hint = "Full path to PNG file or just filename"}
   }
   
   for i, field in ipairs(fields) do
@@ -58,26 +56,6 @@ function projectForm.drawInputFields(menu, data)
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(data[field.key] or "", inputX + 5, y + 3)
   end
-end
-
-function projectForm.drawTilesetButton(menu, data)
-  local fieldY = menu.y + 60
-  local fieldHeight = 25
-  local tilesetY = fieldY + 5 * (fieldHeight + 5) + 10
-  local buttonX = menu.x + 20
-  local buttonW = menu.width - 40
-  
-  love.graphics.setColor(0.3, 0.3, 0.3)
-  love.graphics.rectangle("fill", buttonX, tilesetY, buttonW, fieldHeight)
-  love.graphics.setColor(0.8, 0.8, 0.8)
-  love.graphics.rectangle("line", buttonX, tilesetY, buttonW, fieldHeight)
-  
-  love.graphics.setColor(1, 1, 1)
-  local text = data.tilesetPath ~= "" and data.tilesetPath or "Click to select tileset..."
-  love.graphics.print(text, buttonX + 5, tilesetY + 3)
-  
-  -- Store button info
-  projectForm.tilesetButton = {x = buttonX, y = tilesetY, w = buttonW, h = fieldHeight}
 end
 
 function projectForm.drawActionButtons(menu)
@@ -126,12 +104,6 @@ function projectForm.mousepressed(x, y, menu, data, controller)
       data.selectedField = i
       return true
     end
-  end
-  
-  -- Check tileset button
-  if projectForm.tilesetButton and menu.isMouseOver(projectForm.tilesetButton.x, projectForm.tilesetButton.y, projectForm.tilesetButton.w, projectForm.tilesetButton.h) then
-    controller.selectTileset()
-    return true
   end
   
   -- Check action buttons
