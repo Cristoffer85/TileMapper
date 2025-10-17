@@ -111,10 +111,11 @@ function input.draw()
         love.graphics.draw(hud.button.bgInput.off, x, y)
       end
     end
-    love.graphics.setFont(Font)
-    local name = curInput.toUpdate.." :"
-    love.graphics.print(name, curInput.x - Font:getWidth(name) - 4, Font:getHeight(name)/2)
-    love.graphics.print(curInput.value, curInput.x + 16, curInput.y + 1)
+  love.graphics.setFont(Font)
+  local name = curInput.toUpdate..":"
+  -- Align descriptive text with the input field (no extra menuBar.height)
+  love.graphics.print(name, curInput.x - Font:getWidth(name) - 4, curInput.y)
+  love.graphics.print(curInput.value, curInput.x + 16, curInput.y + 1)
   end
 end
 
