@@ -1,6 +1,5 @@
-menuBar.dropdownOpenTime = 0
--- Menu bar for classic desktop-style menus
 local menuBar = {}
+menuBar.dropdownOpenTime = 0
 
 menuBar.height = 25
 menuBar.items = {
