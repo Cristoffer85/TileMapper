@@ -25,8 +25,6 @@ input = require("input.input")
 menu = require("menu.menuInit")
 menuBar = require("main.menuBar")
 
-
-
 function love.load()
   
   data.load()
@@ -108,7 +106,6 @@ function love.update(dt)
   menuBar.update()
   
 end
-
 
 function love.draw()
   
