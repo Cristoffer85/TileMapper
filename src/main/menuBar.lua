@@ -178,8 +178,28 @@ function menuBar.update()
     local maxY = menuBar.height + (menuBar.dropdownHeight or 0)
     local minX = menuBar.dropdownX
     local maxX = menuBar.dropdownX + (menuBar.dropdownWidth or 0)
+    -- Also get the menu bar link area
+    local link = menuBar.items[menuBar.activeDropdown]
+    local linkX = link and link.x or 0
+    local linkY = link and link.y or 0
+    local linkW = link and link.w or 0
+    local linkH = link and link.h or 0
+    local overDropdown = (mouseY >= minY and mouseY <= maxY and mouseX >= minX and mouseX <= maxX)
+    local overLink = (mouseX >= linkX and mouseX <= linkX + linkW and mouseY >= linkY and mouseY <= linkY + linkH)
+
+    -- Smooth switching: if mouse is over another menu bar link, switch dropdown
+    for k, item in pairs(menuBar.items) do
+      if k ~= menuBar.activeDropdown then
+        if mouseX >= item.x and mouseX <= item.x + item.w and mouseY >= item.y and mouseY <= item.y + item.h then
+          menuBar.activeDropdown = k
+          menuBar.dropdownOpenTime = 0
+          break
+        end
+      end
+    end
+
     if menuBar.dropdownOpenTime > 10 then -- ~10 frames delay
-      if mouseY < minY or mouseY > maxY or mouseX < minX or mouseX > maxX then
+      if not overDropdown and not overLink then
         menuBar.activeDropdown = nil
         menuBar.dropdownOpenTime = 0
       end
