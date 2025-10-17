@@ -1,3 +1,4 @@
+menuBar.dropdownOpenTime = 0
 -- Menu bar for classic desktop-style menus
 local menuBar = {}
 
@@ -139,6 +140,7 @@ function menuBar.mousepressed(x, y, button)
           menuBar.activeDropdown = nil -- Close if already open
         else
           menuBar.activeDropdown = i -- Open dropdown
+          menuBar.dropdownOpenTime = 0 -- Reset open timer
         end
         return true
       end
@@ -169,13 +171,22 @@ function menuBar.mousepressed(x, y, button)
 end
 
 function menuBar.update()
-  -- Close dropdown if mouse moves away from menu area
-  local mouseX, mouseY = love.mouse.getPosition()
-  if menuBar.activeDropdown and mouseY > menuBar.height + (menuBar.dropdownHeight or 0) + 10 then
-    -- Add some tolerance before auto-closing
+  -- Add a short delay before allowing dropdown to auto-close
+  if menuBar.activeDropdown then
+    menuBar.dropdownOpenTime = (menuBar.dropdownOpenTime or 0) + 1
+    local mouseX, mouseY = love.mouse.getPosition()
+    local minY = menuBar.height
+    local maxY = menuBar.height + (menuBar.dropdownHeight or 0)
+    local minX = menuBar.dropdownX
+    local maxX = menuBar.dropdownX + (menuBar.dropdownWidth or 0)
+    if menuBar.dropdownOpenTime > 10 then -- ~10 frames delay
+      if mouseY < minY or mouseY > maxY or mouseX < minX or mouseX > maxX then
+        menuBar.activeDropdown = nil
+        menuBar.dropdownOpenTime = 0
+      end
+    end
   end
 end
-
 
 function menuBar.showAbout()
   love.window.showMessageBox("About TileMapper", 
