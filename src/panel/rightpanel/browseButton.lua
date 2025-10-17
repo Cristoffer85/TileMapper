@@ -39,86 +39,16 @@ function browseButton.mousepressed(x, y)
 end
 
 function browseButton.openTilesetBrowser()
-  local ffi = require("ffi")
-  
-  -- Define Windows API functions
-  ffi.cdef[[
-    typedef struct {
-      unsigned long lStructSize;
-      void* hwndOwner;
-      void* hInstance;
-      const char* lpstrFilter;
-      char* lpstrCustomFilter;
-      unsigned long nMaxCustFilter;
-      unsigned long nFilterIndex;
-      char* lpstrFile;
-      unsigned long nMaxFile;
-      char* lpstrFileTitle;
-      unsigned long nMaxFileTitle;
-      const char* lpstrInitialDir;
-      const char* lpstrTitle;
-      unsigned long Flags;
-      unsigned short nFileOffset;
-      unsigned short nFileExtension;
-      const char* lpstrDefExt;
-      void* lCustData;
-      void* lpfnHook;
-      const char* lpTemplateName;
-    } OPENFILENAMEA;
-    
-    int GetOpenFileNameA(OPENFILENAMEA* lpofn);
-    void* GetModuleHandleA(const char* lpModuleName);
-    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
-  ]]
-  
-  -- Load required Windows DLLs
-  local comdlg32 = ffi.load("comdlg32")
-  local kernel32 = ffi.load("kernel32")
-  
-  -- Create file buffer
-  local fileBuffer = ffi.new("char[260]")  -- MAX_PATH
-  fileBuffer[0] = 0  -- Null terminate
-  
-  -- Get user's Pictures folder path
-  local picturesPath = ffi.new("char[260]")
-  kernel32.GetEnvironmentVariableA("USERPROFILE", picturesPath, 260)
-  local initialDir = ffi.string(picturesPath) .. "\\Pictures"
-  
-  -- Set up OPENFILENAME structure
-  local ofn = ffi.new("OPENFILENAMEA")
-  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
-  ofn.hwndOwner = nil
-  ofn.lpstrFilter = "PNG Images (*.png)\0*.png\0All Files (*.*)\0*.*\0\0"
-  ofn.nFilterIndex = 1
-  ofn.lpstrFile = fileBuffer
-  ofn.nMaxFile = 260
-  ofn.lpstrInitialDir = initialDir
-  ofn.lpstrTitle = "Select Tileset Image"
-  ofn.Flags = 0x00001000 + 0x00000004  -- OFN_FILEMUSTEXIST + OFN_HIDEREADONLY
-  
-  -- Show file dialog
-  local result = comdlg32.GetOpenFileNameA(ofn)
-  
-  if result ~= 0 then
-    -- File was selected
-    local filePath = ffi.string(fileBuffer)
-    
-    if filePath ~= "" and filePath:lower():match("%.png$") then
-      local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
-      
-      -- Copy file to tileset folder
-      if browseButton.copyTilesetToProject(filePath, filename) then
-        -- Fast addition of single tileset (no full reload needed!)
-        if grid.addSingleTileset(filename) then
-          -- Reset scroll position for better UX
-          local tilesetScroll = require("panel.rightpanel.tilesetScroll")
-          tilesetScroll.resetScroll()
-          
-          -- Fix mouse state issue after file dialog - prevent camera dragging
-          -- The file dialog can leave Love2D thinking mouse button is still down
-          if tool and tool.camera then
-            tool.camera.state = false
-          end
+  local browse = require("input.browse")
+  local filePath = browse.openFile(".png", "Select Tileset Image")
+  if filePath and filePath ~= "" and filePath:lower():match("%.png$") then
+    local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
+    if browseButton.copyTilesetToProject(filePath, filename) then
+      if grid.addSingleTileset(filename) then
+        local tilesetScroll = require("panel.rightpanel.tilesetScroll")
+        tilesetScroll.resetScroll()
+        if tool and tool.camera then
+          tool.camera.state = false
         end
       end
     end

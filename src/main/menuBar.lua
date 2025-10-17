@@ -5,55 +5,12 @@ menuBar.dropdownOpenTime = 0
 
 menuBar.height = 25
 -- Utility: import file dialog for import menu actions
+
+local browse = require("input.browse")
+
 local function importFileDialog(extension, importFunc)
-  local ffi = require("ffi")
-  ffi.cdef[[
-    typedef struct {
-      unsigned long lStructSize;
-      void* hwndOwner;
-      void* hInstance;
-      const char* lpstrFilter;
-      char* lpstrCustomFilter;
-      unsigned long nMaxCustFilter;
-      unsigned long nFilterIndex;
-      char* lpstrFile;
-      unsigned long nMaxFile;
-      char* lpstrFileTitle;
-      unsigned long nMaxFileTitle;
-      const char* lpstrInitialDir;
-      const char* lpstrTitle;
-      unsigned long Flags;
-      unsigned short nFileOffset;
-      unsigned short nFileExtension;
-      const char* lpstrDefExt;
-      void* lCustData;
-      void* lpfnHook;
-      const char* lpTemplateName;
-    } OPENFILENAMEA;
-    int GetOpenFileNameA(OPENFILENAMEA* lpofn);
-    void* GetModuleHandleA(const char* lpModuleName);
-    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
-  ]]
-  local comdlg32 = ffi.load("comdlg32")
-  local kernel32 = ffi.load("kernel32")
-  local fileBuffer = ffi.new("char[260]")
-  fileBuffer[0] = 0
-  local userProfile = ffi.new("char[260]")
-  kernel32.GetEnvironmentVariableA("USERPROFILE", userProfile, 260)
-  local initialDir = ffi.string(userProfile) .. "\\Documents"
-  local ofn = ffi.new("OPENFILENAMEA")
-  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
-  ofn.hwndOwner = nil
-  ofn.lpstrFilter = string.format("%s Files (*%s)\0*%s\0All Files (*.*)\0*.*\0\0", extension:upper(), extension, extension)
-  ofn.nFilterIndex = 1
-  ofn.lpstrFile = fileBuffer
-  ofn.nMaxFile = 260
-  ofn.lpstrInitialDir = initialDir
-  ofn.lpstrTitle = "Select File to Import"
-  ofn.Flags = 0x00000008 -- OFN_FILEMUSTEXIST
-  local result = comdlg32.GetOpenFileNameA(ofn)
-  if result ~= 0 then
-    local filename = ffi.string(fileBuffer)
+  local filename = browse.openFile(extension, "Select File to Import")
+  if filename then
     local file = io.open(filename, "r")
     if file then
       importFunc(file)
@@ -65,54 +22,8 @@ local function importFileDialog(extension, importFunc)
 end
 
 local function exportFileDialog(extension, exportFunc)
-  local ffi = require("ffi")
-  ffi.cdef[[
-    typedef struct {
-      unsigned long lStructSize;
-      void* hwndOwner;
-      void* hInstance;
-      const char* lpstrFilter;
-      char* lpstrCustomFilter;
-      unsigned long nMaxCustFilter;
-      unsigned long nFilterIndex;
-      char* lpstrFile;
-      unsigned long nMaxFile;
-      char* lpstrFileTitle;
-      unsigned long nMaxFileTitle;
-      const char* lpstrInitialDir;
-      const char* lpstrTitle;
-      unsigned long Flags;
-      unsigned short nFileOffset;
-      unsigned short nFileExtension;
-      const char* lpstrDefExt;
-      void* lCustData;
-      void* lpfnHook;
-      const char* lpTemplateName;
-    } OPENFILENAMEA;
-    int GetSaveFileNameA(OPENFILENAMEA* lpofn);
-    void* GetModuleHandleA(const char* lpModuleName);
-    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
-  ]]
-  local comdlg32 = ffi.load("comdlg32")
-  local kernel32 = ffi.load("kernel32")
-  local fileBuffer = ffi.new("char[260]")
-  fileBuffer[0] = 0
-  local userProfile = ffi.new("char[260]")
-  kernel32.GetEnvironmentVariableA("USERPROFILE", userProfile, 260)
-  local initialDir = ffi.string(userProfile) .. "\\Documents"
-  local ofn = ffi.new("OPENFILENAMEA")
-  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
-  ofn.hwndOwner = nil
-  ofn.lpstrFilter = string.format("%s Files (*%s)\0*%s\0All Files (*.*)\0*.*\0\0", extension:upper(), extension, extension)
-  ofn.nFilterIndex = 1
-  ofn.lpstrFile = fileBuffer
-  ofn.nMaxFile = 260
-  ofn.lpstrInitialDir = initialDir
-  ofn.lpstrTitle = "Select Export Location"
-  ofn.Flags = 0x00000002 + 0x00000004  -- OFN_OVERWRITEPROMPT + OFN_HIDEREADONLY
-  local result = comdlg32.GetSaveFileNameA(ofn)
-  if result ~= 0 then
-    local filename = ffi.string(fileBuffer)
+  local filename = browse.saveFile(extension, "Select Export Location")
+  if filename then
     local file = io.open(filename, "w+")
     if file then
       exportFunc(file)
