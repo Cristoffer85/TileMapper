@@ -2,14 +2,16 @@ local export = {}
 export.list = {"exportLua", "exportTxt", "exportJson"}
 export.format = {"lua", "txt", "json"}
 export.baseDirectory = love.filesystem.getSourceBaseDirectory()
-export.path = export.baseDirectory.."/map/map"
+
+-- Remove static export.path; will prompt user for export location
+export.path = nil
 
 local function errorExportFileNotFound(file)
   if file ~= nil then return false end
 
   love.window.showMessageBox(
     "An existing directory is required to save a map",
-    "Make sure the 'Map save path' specified in the config file 'editor.txt' is valid",
+    "Please select a valid export location.",
     "error"
   )
 
@@ -17,27 +19,24 @@ local function errorExportFileNotFound(file)
 end
 
 local function writeToFileWithExtension(extension, cb)
-  local filename = export.path..extension
+  local filename = export.promptExportLocation(extension)
+  if not filename then return end
   local file = io.open(filename, "w+")
-
   if errorExportFileNotFound(file) then return end
-
   cb(file)
-
   io.close(file)
-
   -- Also export tilesetIndex.txt if multiTilesetMode is enabled
   if grid.multiTilesetMode and grid.tilesets and #grid.tilesets > 0 then
-    local tilesetIndexFile = io.open(export.baseDirectory.."/map/tilesetIndex.txt", "w+")
+    local indexFilename = filename:gsub("%.[^.]+$", "_tilesetIndex.txt")
+    local tilesetIndexFile = io.open(indexFilename, "w+")
     if tilesetIndexFile == nil then
       love.window.showMessageBox(
         "An existing directory is required to save tileset index",
-        "Make sure the 'Map save path' specified in the config file 'editor.txt' is valid",
+        "Please select a valid export location.",
         "error"
       )
     else
       for i, tileset in ipairs(grid.tilesets) do
-        -- Index is i-1 to match export format
         local tilesetName = "tileset" .. i
         if tileset.name ~= nil then
           tilesetName = tileset.name
@@ -48,6 +47,61 @@ local function writeToFileWithExtension(extension, cb)
       end
       io.close(tilesetIndexFile)
     end
+  end
+end
+
+-- Prompt user for export location using Windows file dialog (similar to browseButton)
+function export.promptExportLocation(extension)
+  local ffi = require("ffi")
+  ffi.cdef[[
+    typedef struct {
+      unsigned long lStructSize;
+      void* hwndOwner;
+      void* hInstance;
+      const char* lpstrFilter;
+      char* lpstrCustomFilter;
+      unsigned long nMaxCustFilter;
+      unsigned long nFilterIndex;
+      char* lpstrFile;
+      unsigned long nMaxFile;
+      char* lpstrFileTitle;
+      unsigned long nMaxFileTitle;
+      const char* lpstrInitialDir;
+      const char* lpstrTitle;
+      unsigned long Flags;
+      unsigned short nFileOffset;
+      unsigned short nFileExtension;
+      const char* lpstrDefExt;
+      void* lCustData;
+      void* lpfnHook;
+      const char* lpTemplateName;
+    } OPENFILENAMEA;
+    int GetSaveFileNameA(OPENFILENAMEA* lpofn);
+    void* GetModuleHandleA(const char* lpModuleName);
+    unsigned long GetEnvironmentVariableA(const char* lpName, char* lpBuffer, unsigned long nSize);
+  ]]
+  local comdlg32 = ffi.load("comdlg32")
+  local kernel32 = ffi.load("kernel32")
+  local fileBuffer = ffi.new("char[260]")
+  fileBuffer[0] = 0
+  local userProfile = ffi.new("char[260]")
+  kernel32.GetEnvironmentVariableA("USERPROFILE", userProfile, 260)
+  local initialDir = ffi.string(userProfile) .. "\\Documents"
+  local ofn = ffi.new("OPENFILENAMEA")
+  ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
+  ofn.hwndOwner = nil
+  ofn.lpstrFilter = "Map Files (*"..extension..")\0*"..extension.."\0All Files (*.*)\0*.*\0\0"
+  ofn.nFilterIndex = 1
+  ofn.lpstrFile = fileBuffer
+  ofn.nMaxFile = 260
+  ofn.lpstrInitialDir = initialDir
+  ofn.lpstrTitle = "Select Export Location"
+  ofn.Flags = 0x00000002 + 0x00000004  -- OFN_OVERWRITEPROMPT + OFN_HIDEREADONLY
+  local result = comdlg32.GetSaveFileNameA(ofn)
+  if result ~= 0 then
+    return ffi.string(fileBuffer)
+  else
+    return nil
   end
 end
 
