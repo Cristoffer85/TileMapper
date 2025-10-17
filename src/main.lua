@@ -123,8 +123,8 @@ function love.update(dt)
     local usableHeight = window.height - (hud.topBar.height or 0)
     local centerX = (grid.width * grid.tileWidth) / 2
     local centerY = (grid.height * grid.tileHeight) / 2
-  local offsetX = -160  -- move more to the left
-  local offsetY = -120  -- move more down
+    local offsetX = -160  -- move more to the left
+    local offsetY = -120  -- move more down
   camera:setPosition(centerX - usableWidth/2 + (hud.leftBar.width or 0) - offsetX, centerY - usableHeight/2 + (hud.topBar.height or 0) + offsetY)
     camera:setScale(6, 6)
     didStartupCamera = true
