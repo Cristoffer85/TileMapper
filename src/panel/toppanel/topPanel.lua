@@ -7,6 +7,7 @@ topPanel.height = 40
 
 function topPanel.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
+  -- Shift toppanel down by menuBar.height
   love.graphics.rectangle("fill", 0, menuBar.height, topPanel.width, topPanel.height)
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle("fill", 0, menuBar.height + topPanel.height-1, topPanel.width, 1)
@@ -16,7 +17,8 @@ function topPanel.drawButtonTopBar(pX, pY, spacing, width, name, title)
   love.graphics.setColor(1, 1, 1)
   if title ~= nil then
     love.graphics.setFont(Font)
-    love.graphics.print(title, pX-Font:getWidth(title)-10, Font:getHeight(title)/2)
+    -- Shift the title text down by menuBar.height
+    love.graphics.print(title, pX-Font:getWidth(title)-10, menuBar.height + Font:getHeight(title)/2)
   end
   local i
   for i = 1, #name do

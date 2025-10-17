@@ -10,6 +10,7 @@ rightPanel.height = window.height
 
 function rightPanel.draw()
   love.graphics.setColor(85/255, 85/255, 85/255)
+  -- Shift rightpanel down by menuBar.height
   love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + 40, rightPanel.width, rightPanel.height - menuBar.height - 40)
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + 40, 1, rightPanel.height - menuBar.height - 40)
