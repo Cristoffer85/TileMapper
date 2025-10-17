@@ -241,20 +241,6 @@ function grid.autoDetectTilesets()
     end
   end
   
-  -- If directory scan failed, fall back to checking common files
-  if #tilesetFiles == 0 then
-    local commonFiles = {"TileSheet.png", "TileSheet2.png", "tileset.png", "ground.png", "buildings.png", "decorations.png", "tiles.png", "texture.png"}
-    
-    for _, filename in ipairs(commonFiles) do
-      local fullPath = tilesetDir .. "/" .. filename
-      local file = io.open(fullPath, "rb")
-      if file then
-        file:close()
-        table.insert(tilesetFiles, "tileset/" .. filename)
-      end
-    end
-  end
-  
   -- If we found multiple PNG files, enable multi-tileset mode
   if #tilesetFiles > 1 then
     grid.multiTilesetMode = true
