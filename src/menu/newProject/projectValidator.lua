@@ -29,7 +29,7 @@ function mapValidator.validateInput(data)
     table.insert(errors, "Tileset file is required")
   else
     -- Validate tileset file exists
-    if not projectValidator.validateTilesetExists(data.tilesetPath) then
+    if not mapValidator.validateTilesetExists(data.tilesetPath) then
       table.insert(errors, "Tileset file '" .. data.tilesetPath .. "' not found in /tileset folder")
     end
   end

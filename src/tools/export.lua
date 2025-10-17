@@ -29,17 +29,25 @@ local function writeToFileWithExtension(extension, cb)
   -- Also export tilesetIndex.txt if multiTilesetMode is enabled
   if grid.multiTilesetMode and grid.tilesets and #grid.tilesets > 0 then
     local tilesetIndexFile = io.open(export.baseDirectory.."/map/tilesetIndex.txt", "w+")
-    for i, tileset in ipairs(grid.tilesets) do
-      -- Index is i-1 to match export format
-      local tilesetName = "tileset" .. i
-      if tileset.name ~= nil then
-        tilesetName = tileset.name
-      elseif tileset.path ~= nil then
-        tilesetName = tileset.path
+    if tilesetIndexFile == nil then
+      love.window.showMessageBox(
+        "An existing directory is required to save tileset index",
+        "Make sure the 'Map save path' specified in the config file 'editor.txt' is valid",
+        "error"
+      )
+    else
+      for i, tileset in ipairs(grid.tilesets) do
+        -- Index is i-1 to match export format
+        local tilesetName = "tileset" .. i
+        if tileset.name ~= nil then
+          tilesetName = tileset.name
+        elseif tileset.path ~= nil then
+          tilesetName = tileset.path
+        end
+        tilesetIndexFile:write((i-1) .. ": " .. tilesetName .. "\n")
       end
-      tilesetIndexFile:write((i-1) .. ": " .. tilesetName .. "\n")
+      io.close(tilesetIndexFile)
     end
-    io.close(tilesetIndexFile)
   end
 end
 
