@@ -37,6 +37,12 @@ function newMap.create(menu)
     return
   end
   
+  -- Center camera on middle tile after map creation
+  if grid and camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight then
+    local centerX = (grid.width * grid.tileWidth) / 2
+    local centerY = (grid.height * grid.tileHeight) / 2
+    camera:setPosition(centerX - window.width/2, centerY - window.height/2)
+  end
   menu.hide()
 end
 
