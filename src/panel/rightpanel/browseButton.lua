@@ -20,7 +20,7 @@ function browseButton.draw()
   
   -- Button text
   love.graphics.setColor(1, 1, 1)
-  local buttonText = "Browse Tileset"
+  local buttonText = "Add Tileset.."
   local textWidth = love.graphics.getFont():getWidth(buttonText)
   love.graphics.print(buttonText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 8)
   

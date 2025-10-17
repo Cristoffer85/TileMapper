@@ -62,15 +62,18 @@ end
 
 function action.resetPos.f()
   camera:setScale(1, 1)
-  local x
-  local y
+  local x, y
+  if not grid or not hud or not hud.leftBar or not window.grid then
+    camera:setPosition(0, 0)
+    return
+  end
   if grid.width*grid.tileWidth <= window.grid.width then
-    x = (window.grid.width-grid.width*grid.tileWidth)/2 + hud.leftBar.width
+    x = (window.grid.width-grid.width*grid.tileWidth)/2 + (hud.leftBar.width or 0)
   else
-    x = hud.leftBar.width
+    x = hud.leftBar.width or 0
   end
   if grid.height*grid.tileHeight <= window.grid.height then
-    y = -((window.grid.height-grid.height*grid.tileHeight)/2 + hud.topBar.height)
+    y = -((window.grid.height-grid.height*grid.tileHeight)/2 + (hud.topBar.height or 0))
   else
     y = grid.height*grid.tileHeight - window.height
   end

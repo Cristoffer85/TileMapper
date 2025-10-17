@@ -1,3 +1,4 @@
+local didStartupCamera = false
 io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
 if arg[#arg] == "-debug" then require("mobdebug").start() end
@@ -27,15 +28,34 @@ menuBar = require("main.menuBar")
 
 function love.load()
   
+  -- Set default grid size to 48x48 tiles, tile size 64
+  grid.width = 48
+  grid.height = 48
+  grid.tileWidth = 64
+  grid.tileHeight = 64
   grid.load()
-  
+
+  action.resetPos.f()
+
+  -- Center camera on middle tile and zoom out for a wider view (do this last)
+  if camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight and hud and hud.leftBar and hud.rightBar and hud.topBar then
+    local usableWidth = window.width - (hud.leftBar.width or 0) - (hud.rightBar.width or 0)
+    local usableHeight = window.height - (hud.topBar.height or 0)
+    local centerX = (grid.width * grid.tileWidth) / 2
+    local centerY = (grid.height * grid.tileHeight) / 2
+  local offsetX = 80  -- move more to the left
+  local offsetY = 60  -- move more down
+  camera:setPosition(centerX - usableWidth/2 + (hud.leftBar.width or 0) - offsetX, centerY - usableHeight/2 + (hud.topBar.height or 0) + offsetY)
+    camera:setScale(0.25, 0.25) -- Zoom out to show much more of the map
+  end
+
   -- Load button images after Love2D is properly initialized
   hud.button.load()
-  
+
   window.grid = {}
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
   window.grid.height = window.height-hud.topBar.height-menuBar.height
-  
+
   action.resetPos.f()
   
 end
@@ -97,6 +117,19 @@ end
 
 function love.update(dt)
   
+  -- One-time camera centering and zoom after all initializations
+  if not didStartupCamera and camera and grid and grid.width and grid.height and grid.tileWidth and grid.tileHeight and hud and hud.leftBar and hud.rightBar and hud.topBar then
+    local usableWidth = window.width - (hud.leftBar.width or 0) - (hud.rightBar.width or 0)
+    local usableHeight = window.height - (hud.topBar.height or 0)
+    local centerX = (grid.width * grid.tileWidth) / 2
+    local centerY = (grid.height * grid.tileHeight) / 2
+  local offsetX = -160  -- move more to the left
+  local offsetY = -120  -- move more down
+  camera:setPosition(centerX - usableWidth/2 + (hud.leftBar.width or 0) - offsetX, centerY - usableHeight/2 + (hud.topBar.height or 0) + offsetY)
+    camera:setScale(6, 6)
+    didStartupCamera = true
+  end
+
   mouse.update()
   action.update(dt)
   tool.update()
