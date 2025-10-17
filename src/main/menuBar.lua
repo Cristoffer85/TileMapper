@@ -6,38 +6,15 @@ menuBar.items = {
   {
     label = "File",
     items = {
-  {label = "New Map", action = function() menu.show("newMap") end},
-  {label = "Open Map", action = function() menu.loadMap.showDialog() end},
-  {label = "Save Map", action = function() menu.saveMap.save() end},
-  {label = "Save As...", action = function() menu.saveMap.saveAs() end},
-      {label = "separator"},
-  {label = "Export Map", action = function() menuBar.showExportOptions() end},
-  {label = "Import Map", action = function() menuBar.showImportOptions() end}
-    }
-  },
-  {
-    label = "Edit",
-    items = {
-      {label = "Clear Map", action = function() menuBar.clearMap() end},
-      {label = "Fill Map", action = function() menuBar.fillMap() end},
-      {label = "Resize Map", action = function() menuBar.resizeMap() end}
-    }
-  },
-  {
-    label = "View",
-    items = {
-      {label = "Toggle Fullscreen", action = function() menuBar.toggleFullscreen() end},
-      {label = "Reset Camera", action = function() action.resetPos.f() end},
-      {label = "Zoom In", action = function() action.zoom.wheelmoved(1) end},
-      {label = "Zoom Out", action = function() action.zoom.wheelmoved(-1) end}
-    }
-  },
-  {
-    label = "Tools",
-    items = {
-      {label = "Pen Tool", action = function() tool.current = "pen" end},
-      {label = "Fill Tool", action = function() tool.current = "fill" end},
-      {label = "Eraser Tool", action = function() tool.current = "eraser" end}
+      {label = "New Map", action = function() menu.show("newMap") end},
+      {label = "divider"},
+      {label = "Import .txt", action = function() import.fromTXT() end},
+      {label = "Import json", action = function() import.fromJSON() end},
+      {label = "Import lua", action = function() import.fromLua() end},
+      {label = "divider"},
+      {label = "Export .txt", action = function() export.toTXT() end},
+      {label = "Export json", action = function() export.toJSON() end},
+      {label = "Export lua", action = function() export.toLua() end}
     }
   },
   {
@@ -98,57 +75,49 @@ function menuBar.drawDropdown(menuIndex)
   if not menuItem then return end
   
   local itemHeight = 25
-  local dropdownHeight = #menuItem.items * itemHeight
-  local separatorCount = 0
-  
-  -- Count separators to adjust height
+  local dividerHeight = 8
+  local dropdownHeight = 0
   for _, item in ipairs(menuItem.items) do
-    if item.label == "separator" then
-      separatorCount = separatorCount + 1
+    if item.label == "divider" then
+      dropdownHeight = dropdownHeight + dividerHeight
+    else
+      dropdownHeight = dropdownHeight + itemHeight
     end
   end
-  
-  dropdownHeight = dropdownHeight + (separatorCount * 5) - (separatorCount * itemHeight)
-  
+
   menuBar.dropdownX = menuItem.x
   menuBar.dropdownY = menuBar.height
   menuBar.dropdownWidth = 150
   menuBar.dropdownHeight = dropdownHeight
-  
+
   -- Dropdown background
   love.graphics.setColor(0.95, 0.95, 0.95)
   love.graphics.rectangle("fill", menuBar.dropdownX, menuBar.dropdownY, menuBar.dropdownWidth, dropdownHeight)
   love.graphics.setColor(0.6, 0.6, 0.6)
   love.graphics.rectangle("line", menuBar.dropdownX, menuBar.dropdownY, menuBar.dropdownWidth, dropdownHeight)
-  
+
   -- Dropdown items
   local y = menuBar.dropdownY
   love.graphics.setColor(0, 0, 0)
-  
+
   for i, item in ipairs(menuItem.items) do
-    if item.label == "separator" then
-      -- Draw separator
+    if item.label == "divider" then
       love.graphics.setColor(0.7, 0.7, 0.7)
-      love.graphics.line(menuBar.dropdownX + 5, y + 2, menuBar.dropdownX + menuBar.dropdownWidth - 5, y + 2)
+      love.graphics.line(menuBar.dropdownX + 8, y + dividerHeight/2, menuBar.dropdownX + menuBar.dropdownWidth - 8, y + dividerHeight/2)
       love.graphics.setColor(0, 0, 0)
-      y = y + 5
+      y = y + dividerHeight
     else
-      -- Highlight if hovered
-      if menuBar.isMouseOverMenuItem(menuBar.dropdownX, y, menuBar.dropdownWidth, itemHeight) then
+      local isHovered = menuBar.isMouseOverMenuItem(menuBar.dropdownX, y, menuBar.dropdownWidth, itemHeight)
+      if isHovered then
         love.graphics.setColor(0.8, 0.8, 1.0)
         love.graphics.rectangle("fill", menuBar.dropdownX, y, menuBar.dropdownWidth, itemHeight)
         love.graphics.setColor(0, 0, 0)
       end
-      
-      -- Draw text
       love.graphics.print(item.label, menuBar.dropdownX + 10, y + 5)
-      
-      -- Store position for click detection
       item.x = menuBar.dropdownX
       item.y = y
       item.w = menuBar.dropdownWidth
       item.h = itemHeight
-      
       y = y + itemHeight
     end
   end
@@ -184,19 +153,15 @@ function menuBar.mousepressed(x, y, button)
     local menuItem = menuBar.items[menuBar.activeDropdown]
     if menuBar.isMouseOverMenuItem(menuBar.dropdownX, menuBar.dropdownY, menuBar.dropdownWidth, menuBar.dropdownHeight) then
       for _, item in ipairs(menuItem.items) do
-        if item.label ~= "separator" and item.x and item.y and 
-           menuBar.isMouseOverMenuItem(item.x, item.y, item.w, item.h) then
-          if item.action then
-            item.action()
-          end
+        if item.label ~= "divider" and item.x and item.y and menuBar.isMouseOverMenuItem(item.x, item.y, item.w, item.h) then
+          if item.action then item.action() end
           menuBar.activeDropdown = nil
           return true
         end
       end
     else
-      -- Clicked outside dropdown, close it
       menuBar.activeDropdown = nil
-      return false -- Allow the click to pass through
+      return false
     end
   end
   
@@ -211,68 +176,6 @@ function menuBar.update()
   end
 end
 
-function menuBar.showExportOptions()
-  love.window.showMessageBox("Export Options", 
-    "Current export formats:\n- TXT format\n- JSON format\n- Lua format\n\nUse the export buttons in the top bar to export your map.", 
-    "info")
-end
-
-function menuBar.showImportOptions()
-  love.window.showMessageBox("Import Options", 
-    "Current import formats:\n- TXT format\n- JSON format\n- Lua format\n\nUse the import buttons in the top bar to import a map.", 
-    "info")
-end
-
-function menuBar.clearMap()
-  local result = love.window.showMessageBox("Clear Map", 
-    "Are you sure you want to clear the entire map? This cannot be undone.", 
-    "warning", "yesno")
-    
-  if result then
-    for x = 1, grid.width do
-      for y = 1, grid.height do
-        grid.map[x][y] = 0
-      end
-    end
-    love.window.showMessageBox("Map Cleared", "The map has been cleared.", "info")
-  end
-end
-
-function menuBar.fillMap()
-  if mouse.fillColor and mouse.fillColor > 0 then
-    local result = love.window.showMessageBox("Fill Map", 
-      "Fill the entire map with the selected tile? This cannot be undone.", 
-      "warning", "yesno")
-      
-    if result then
-      for x = 1, grid.width do
-        for y = 1, grid.height do
-          grid.map[x][y] = mouse.fillColor
-        end
-      end
-      love.window.showMessageBox("Map Filled", "The map has been filled with the selected tile.", "info")
-    end
-  else
-    love.window.showMessageBox("No Tile Selected", "Please select a tile first.", "info")
-  end
-end
-
-function menuBar.resizeMap()
-  love.window.showMessageBox("Resize Map", 
-  "To resize the map, use File > New Map and set new dimensions.\n\nNote: This will create a new map and clear existing content.", 
-    "info")
-end
-
-function menuBar.toggleFullscreen()
-  local isFullscreen = love.window.getFullscreen()
-  love.window.setFullscreen(not isFullscreen)
-  
-  -- Update window dimensions
-  window.width, window.height = love.graphics.getDimensions()
-  hud.updateDimensions()
-  window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
-  window.grid.height = window.height-hud.topBar.height-menuBar.height
-end
 
 function menuBar.showAbout()
   love.window.showMessageBox("About TileMapper", 
