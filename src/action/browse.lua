@@ -1,5 +1,9 @@
+-- Helper class that helps provide file browsing capabilities with native Windows dialogs
+-- Only windows is currently supported at this time
+
 local browse = {}
 
+-- Windows File Dialog via FFI = Foreign Function Interface.
 local ffi = require("ffi")
 ffi.cdef[[
   typedef struct {
@@ -32,12 +36,14 @@ ffi.cdef[[
 local comdlg32 = ffi.load("comdlg32")
 local kernel32 = ffi.load("kernel32")
 
+-- Helper function to get user's Documents folder as initial directory
 local function getInitialDir()
   local userProfile = ffi.new("char[260]")
   kernel32.GetEnvironmentVariableA("USERPROFILE", userProfile, 260)
   return ffi.string(userProfile) .. "\\Documents"
 end
 
+-- Open file dialog
 function browse.openFile(extension, title)
   local fileBuffer = ffi.new("char[260]")
   fileBuffer[0] = 0
@@ -59,6 +65,7 @@ function browse.openFile(extension, title)
   end
 end
 
+-- Save file dialog
 function browse.saveFile(extension, title)
   local fileBuffer = ffi.new("char[260]")
   fileBuffer[0] = 0
@@ -78,6 +85,44 @@ function browse.saveFile(extension, title)
   else
     return nil
   end
+end
+
+-- Open tileset image and copy to tileset folder
+function browse.openTilesetImage()
+  local filePath = browse.openFile(".png", "Select Tileset Image")
+  if not filePath or filePath == "" or not filePath:lower():match("%.png$") then
+    return false
+  end
+  local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
+  local baseDirectory = love.filesystem.getSourceBaseDirectory()
+  local targetDir = baseDirectory .. "/tileset/"
+  local targetPath = targetDir .. filename
+  -- Read source file
+  local sourceFile = io.open(filePath, "rb")
+  if not sourceFile then
+    love.window.showMessageBox("Copy Error", "Could not read tileset: " .. filePath, "error")
+    return false
+  end
+  local data = sourceFile:read("*all")
+  sourceFile:close()
+  -- Write to target directory
+  local targetFile = io.open(targetPath, "wb")
+  if not targetFile then
+    love.window.showMessageBox("Copy Error", "Could not write tileset to: " .. targetPath, "error")
+    return false
+  end
+  targetFile:write(data)
+  targetFile:close()
+  -- Add tileset to grid
+  if grid.addTileset(filename) then
+    local tilesetScroll = require("panel.rightpanel.tilesetScroll")
+    tilesetScroll.resetScroll()
+    if tool and tool.camera then
+      tool.camera.state = false
+    end
+    return true
+  end
+  return false
 end
 
 return browse

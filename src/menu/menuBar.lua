@@ -1,13 +1,13 @@
 
 local menuBar = {}
-local import = require("menu.import.import")
-local export = require("menu.export.export")
+local import = require("menu.import.importMain")
+local export = require("menu.export.exportMain")
 menuBar.dropdownOpenTime = 0
 menuBar.height = 25
-local browse = require("src.action.browse")
+local browse = require("action.browse")
 
 -- Modal dialog state for New Map
-local newMap = require("menu.newMap.newMapInit")
+local newMap = require("menu.newMap.newMapMain")
 menuBar.modal = {
   visible = false,
   state = nil,
