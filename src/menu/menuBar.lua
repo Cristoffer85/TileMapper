@@ -1,13 +1,83 @@
+
 local menuBar = {}
-local import = require("main.import")
-local export = require("main.export")
+local import = require("src.menu.import.import")
+local export = require("src.menu.export.export")
 menuBar.dropdownOpenTime = 0
-
 menuBar.height = 25
--- Utility: import file dialog for import menu actions
-
 local browse = require("src.action.browse")
 
+-- Modal dialog state for New Map
+local newMap = require("src.menu.newMap.newProjectInit")
+menuBar.modal = {
+  visible = false,
+  state = nil,
+  width = 400,
+  height = 300,
+  x = 0,
+  y = 0
+}
+
+function menuBar.showModal(state)
+  menuBar.modal.state = state
+  menuBar.modal.visible = true
+  menuBar.updateModalPosition()
+end
+
+function menuBar.hideModal()
+  menuBar.modal.state = nil
+  menuBar.modal.visible = false
+end
+
+function menuBar.updateModalPosition()
+  menuBar.modal.x = (window.width - menuBar.modal.width) / 2
+  menuBar.modal.y = (window.height - menuBar.modal.height) / 2
+end
+
+function menuBar.drawModal()
+  if not menuBar.modal.visible then return end
+  -- Semi-transparent overlay
+  love.graphics.setColor(0, 0, 0, 0.7)
+  love.graphics.rectangle("fill", 0, 0, window.width, window.height)
+  -- Modal background
+  love.graphics.setColor(0.2, 0.2, 0.2)
+  love.graphics.rectangle("fill", menuBar.modal.x, menuBar.modal.y, menuBar.modal.width, menuBar.modal.height)
+  love.graphics.setColor(0.8, 0.8, 0.8)
+  love.graphics.rectangle("line", menuBar.modal.x, menuBar.modal.y, menuBar.modal.width, menuBar.modal.height)
+  -- Delegate drawing to newMap dialog
+  if menuBar.modal.state == "newMap" then
+    newMap.draw(menuBar.modal)
+  end
+end
+
+function menuBar.modalMousepressed(x, y, button)
+  if not menuBar.modal.visible or button ~= 1 then return false end
+  if menuBar.modal.state == "newMap" then
+    return newMap.mousepressed(x, y, menuBar.modal)
+  end
+  return false
+end
+
+function menuBar.modalTextinput(text)
+  if not menuBar.modal.visible then return false end
+  if menuBar.modal.state == "newMap" then
+    return newMap.textinput(text)
+  end
+  return false
+end
+
+function menuBar.modalKeypressed(key)
+  if not menuBar.modal.visible then return false end
+  if key == "escape" then
+    menuBar.hideModal()
+    return true
+  end
+  if menuBar.modal.state == "newMap" then
+    return newMap.keypressed(key, menuBar.modal)
+  end
+  return false
+end
+
+-- Utility: import/export file dialog for menu actions
 local function importFileDialog(extension, importFunc)
   local filename = browse.openFile(extension, "Select File to Import")
   if filename then
@@ -38,15 +108,15 @@ menuBar.items = {
   {
     label = "File",
     items = {
-      {label = "New Map", action = function() menu.show("newMap") end},
+      {label = "New Map", action = function() menuBar.showModal("newMap") end},
       {label = "divider"},
       {label = "Import .txt", action = function() importFileDialog(".txt", import.txt) end},
       {label = "Import json", action = function() importFileDialog(".json", import.json) end},
       {label = "Import lua", action = function() importFileDialog(".lua", import.lua) end},
       {label = "divider"},
-  {label = "Export .txt", action = function() exportFileDialog(".txt", export.txt) end},
-  {label = "Export json", action = function() exportFileDialog(".json", export.json) end},
-  {label = "Export lua", action = function() exportFileDialog(".lua", export.lua) end}
+      {label = "Export .txt", action = function() exportFileDialog(".txt", export.txt) end},
+      {label = "Export json", action = function() exportFileDialog(".json", export.json) end},
+      {label = "Export lua", action = function() exportFileDialog(".lua", export.lua) end}
     }
   },
   {
@@ -69,7 +139,6 @@ function menuBar.draw()
   love.graphics.rectangle("fill", 0, 0, window.width, menuBar.height)
   love.graphics.setColor(0.7, 0.7, 0.7)
   love.graphics.rectangle("line", 0, 0, window.width, menuBar.height)
-  
   -- Menu items
   local x = 5
   love.graphics.setColor(0, 0, 0)
@@ -87,11 +156,12 @@ function menuBar.draw()
     item.h = menuBar.height
     x = x + itemWidth
   end
-
   -- Draw active dropdown
   if menuBar.activeDropdown then
     menuBar.drawDropdown(menuBar.activeDropdown)
   end
+  -- Draw modal dialog if visible
+  menuBar.drawModal()
 end
 -- removed extra end
 

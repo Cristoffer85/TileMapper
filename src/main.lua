@@ -1,3 +1,4 @@
+local newMap = require("menu.newMap.newProjectInit")
 local didStartupCamera = false
 io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
@@ -20,11 +21,10 @@ tile = require("ui.tile")
 mouse = require("src.action.mouse")
 grid = require("ui.grid")
 hud = require("panel.panelInit")
-export = require("main.export")
-import = require("main.import")
+export = require("src.menu.export.export")
+import = require("src.menu.import.import")
 input = require("src.action.input")
-menu = require("menu.menuInit")
-menuBar = require("main.menuBar")
+menuBar = require("src.menu.menuBar")
 
 function love.load()
   
@@ -66,8 +66,8 @@ function love.mousepressed(x, y, touch)
     return
   end
   
-  -- Menu input has priority
-  if menu.mousepressed(x, y, touch) then
+  -- Modal dialog input
+  if menuBar.modalMousepressed(x, y, touch) then
     return
   end
   
@@ -82,16 +82,16 @@ function love.mousepressed(x, y, touch)
 end
 
 function love.textinput(t)
-  -- Menu input has priority
-  if menu.textinput(t) then
+  -- Modal dialog input
+  if menuBar.modalTextinput(t) then
     return
   end
   input.textinput(t)
 end
 
 function love.keypressed(key)
-  -- Menu input has priority
-  if menu.keypressed(key) then
+  -- Modal dialog input
+  if menuBar.modalKeypressed(key) then
     return
   end
   input.keypressed(key)
@@ -111,7 +111,7 @@ function love.resize(w, h)
   hud.updateDimensions()
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
   window.grid.height = window.height-hud.topBar.height-menuBar.height
-  menu.updatePosition()
+  menuBar.updateModalPosition()
 end
 
 function love.update(dt)
@@ -160,14 +160,12 @@ function love.draw()
   -- Draw menu bar
   menuBar.draw()
   
-  -- Draw menu on top of everything
-  menu.draw()
   
 end
 
 function love.filedropped(file)
-  -- Handle file drops for tileset selection when in new project menu
-  if menu and menu.state and menu.state == "newProject" and menu.currentMenu and menu.currentMenu.handleFileDrop then
-    menu.currentMenu.handleFileDrop(file)
+  -- Handle file drops for tileset selection when in new map modal
+  if menuBar.modal and menuBar.modal.state == "newMap" and newMap and newMap.handleFileDrop then
+    newMap.handleFileDrop(file)
   end
 end

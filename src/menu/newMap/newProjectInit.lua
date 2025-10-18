@@ -2,8 +2,8 @@
 local newMap = {}
 
 -- Import sub-modules
-local mapForm = require("menu.newProject.projectForm")
-local mapValidator = require("menu.newProject.projectValidator")
+local mapForm = require("src.menu.newMap.projectForm")
+local mapValidator = require("src.menu.newMap.projectValidator")
 
 newMap.data = {
   mapWidth = "128",
