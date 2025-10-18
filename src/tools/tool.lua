@@ -148,7 +148,6 @@ function tool.fill.f()
   end
 end
 
-
 function tool.tilePicker.f()
   if love.mouse.isDown(mouseTouch1) then
     if isMapPosValid() then
@@ -192,6 +191,5 @@ function tool.camera.f()
     tool.camera.shortcutWasDown = false
   end
 end
-
 
 return tool
