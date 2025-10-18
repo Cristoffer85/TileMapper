@@ -1,7 +1,7 @@
 
 local menuBar = {}
-local import = require("src.menu.import.import")
-local export = require("src.menu.export.export")
+local import = require("menu.import.import")
+local export = require("menu.export.export")
 menuBar.dropdownOpenTime = 0
 menuBar.height = 25
 local browse = require("src.action.browse")

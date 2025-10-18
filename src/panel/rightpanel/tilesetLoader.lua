@@ -1,12 +1,10 @@
-local data = {}
+local tilesetLoader = {}
 
-function data.loadMultiTilesetFormat(contentFile)
+function tilesetLoader.loadMultiTilesetFormat(contentFile)
   local tilesetCount = tonumber(contentFile[4])
-  
   -- Load tileset paths
   grid.tilesetPaths = {}
   grid.multiTilesetMode = true
-  
   local lineIndex = 5
   for i = 1, tilesetCount do
     -- Skip tileset_X line
@@ -15,10 +13,8 @@ function data.loadMultiTilesetFormat(contentFile)
     grid.tilesetPaths[i] = contentFile[lineIndex]
     lineIndex = lineIndex + 1
   end
-  
   -- Set primary tileset for compatibility
   grid.tileSetPath = grid.tilesetPaths[1]
-  
   -- Load tile dimensions and grid size
   while lineIndex <= #contentFile do
     if contentFile[lineIndex] == "tile_width" then
@@ -39,7 +35,7 @@ function data.loadMultiTilesetFormat(contentFile)
   end
 end
 
-function data.loadLegacyFormat(contentFile)
+function tilesetLoader.loadLegacyFormat(contentFile)
   grid.multiTilesetMode = false
   grid.tileSetPath = contentFile[4]
   grid.tileWidth = tonumber(contentFile[6])
@@ -48,4 +44,4 @@ function data.loadLegacyFormat(contentFile)
   grid.height = tonumber(contentFile[12])
 end
 
-return data
+return tilesetLoader

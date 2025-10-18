@@ -151,18 +151,15 @@ function tilesetDisplay.drawTilesetSection(tileset, tilesetIndex, paddingX, star
   
   for localTileId = 1, totalTiles do
     local globalTileId = tileset.startTileId + localTileId - 1
-    
     if grid.tileTexture[globalTileId] then
       local x = paddingX + currentCol * (pTileWidth + spacing)
       local y = startY + currentRow * (pTileWidth + spacing)
-      
       -- Store click area for this tileset
       table.insert(tilesetDisplay.tilesetClickAreas[tilesetIndex], {
         x = x, y = y, w = pTileWidth, h = pTileWidth, 
         tileId = globalTileId,
         tilesetIndex = tilesetIndex
       })
-      
       -- Only draw if visible
       if y + pTileWidth >= clipY and y <= clipY + clipHeight and y >= menuBar.height + 40 then  -- topBar.height = 40
         -- Highlight selected tile
@@ -170,10 +167,26 @@ function tilesetDisplay.drawTilesetSection(tileset, tilesetIndex, paddingX, star
           love.graphics.setColor(50/255, 50/255, 50/255)
           love.graphics.rectangle("fill", x - 1, y - 1, pTileWidth + 2, pTileWidth + 2)
         end
-        
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(tileset.image, grid.tileTexture[globalTileId].quad, x, y, 0, rapport, rapport)
       end
+      tilesDrawn = tilesDrawn + 1
+    end
+    currentCol = currentCol + 1
+    if currentCol >= nbColumn then
+      currentCol = 0
+      currentRow = currentRow + 1
     end
   end
+  return tilesDrawn
+end
+
+function tilesetDisplay.getSectionPositions()
+  return tilesetDisplay.sectionPositions
+end
+
+function tilesetDisplay.getTilesetClickAreas()
+  return tilesetDisplay.tilesetClickAreas
 end
 
 return tilesetDisplay

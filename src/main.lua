@@ -12,17 +12,17 @@ window.width = 1200
 window.height = 700
 Font = love.graphics.newFont(16)
 
-data = require("data.data")
+data = require("panel.rightpanel.tilesetLoader")
 camera = require("ui.camera")
-action = require("src.action.action")
-tool = require("tools.tool")
-mouse = require("src.action.mouse")
+action = require("action.action")
+tool = require("panel.leftpanel.tool")
+mouse = require("action.mouse")
 grid = require("ui.grid")
 hud = require("panel.panelInit")
-export = require("src.menu.export.export")
-import = require("src.menu.import.import")
-input = require("src.action.input")
-menuBar = require("src.menu.menuBar")
+export = require("menu.export.export")
+import = require("menu.import.import")
+input = require("action.input")
+menuBar = require("menu.menuBar")
 
 function love.load()
   

@@ -90,7 +90,7 @@ function mapForm.drawActionButtons(menu)
 end
 
 function mapForm.mousepressed(x, y, menu, data, controller)
-  local menuBar = require("src.menu.menuBar")
+  local menuBar = require("menu.menuBar")
   -- Check input field clicks
   local fieldY = menu.y + 60
   local fieldHeight = 25
