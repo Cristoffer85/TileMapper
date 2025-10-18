@@ -39,7 +39,7 @@ function browseButton.mousepressed(x, y)
 end
 
 function browseButton.openTilesetBrowser()
-  local browse = require("input.browse")
+  local browse = require("src.action.browse")
   local filePath = browse.openFile(".png", "Select Tileset Image")
   if filePath and filePath ~= "" and filePath:lower():match("%.png$") then
     local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath

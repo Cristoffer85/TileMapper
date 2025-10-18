@@ -6,7 +6,7 @@ menuBar.dropdownOpenTime = 0
 menuBar.height = 25
 -- Utility: import file dialog for import menu actions
 
-local browse = require("input.browse")
+local browse = require("src.action.browse")
 
 local function importFileDialog(extension, importFunc)
   local filename = browse.openFile(extension, "Select File to Import")
