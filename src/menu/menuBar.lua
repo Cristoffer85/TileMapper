@@ -7,7 +7,7 @@ menuBar.height = 25
 local browse = require("src.action.browse")
 
 -- Modal dialog state for New Map
-local newMap = require("src.menu.newMap.newProjectInit")
+local newMap = require("menu.newMap.newProjectInit")
 menuBar.modal = {
   visible = false,
   state = nil,
