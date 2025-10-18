@@ -2,7 +2,7 @@
 local panelInit = {}
 
 -- Import button system for backward compatibility
-panelInit.button = require("ui.button")
+panelInit.button = require("src.assets.button")
 
 -- Add tileset property for backward compatibility with tile.lua
 local tilesetScroll = require("panel.rightpanel.tilesetScroll")

@@ -1,6 +1,6 @@
 -- Left panel main coordinator
 local leftPanel = {}
-local button = require("ui.button")
+local button = require("src.assets.button")
 
 leftPanel.width = 40
 leftPanel.height = window.height
