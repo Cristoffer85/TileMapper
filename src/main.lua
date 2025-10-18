@@ -1,4 +1,3 @@
-local newMap = require("menu.newMap.newMapInit")
 local didStartupCamera = false
 io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
@@ -17,7 +16,6 @@ data = require("data.data")
 camera = require("ui.camera")
 action = require("src.action.action")
 tool = require("tools.tool")
-tile = require("ui.tile")
 mouse = require("src.action.mouse")
 grid = require("ui.grid")
 hud = require("panel.panelInit")
@@ -37,21 +35,8 @@ function love.load()
 
   action.resetPos.f()
 
-  -- Center camera on middle tile and zoom out for a wider view (do this last)
-  if camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight and hud and hud.leftBar and hud.rightBar and hud.topBar then
-    local usableWidth = window.width - (hud.leftBar.width or 0) - (hud.rightBar.width or 0)
-    local usableHeight = window.height - (hud.topBar.height or 0)
-    local centerX = (grid.width * grid.tileWidth) / 2
-    local centerY = (grid.height * grid.tileHeight) / 2
-  local offsetX = 80  -- move more to the left
-  local offsetY = 60  -- move more down
-  camera:setPosition(centerX - usableWidth/2 + (hud.leftBar.width or 0) - offsetX, centerY - usableHeight/2 + (hud.topBar.height or 0) + offsetY)
-    camera:setScale(0.25, 0.25) -- Zoom out to show much more of the map
-  end
-
   -- Load button images after Love2D is properly initialized
   hud.button.load()
-
   window.grid = {}
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
   window.grid.height = window.height-hud.topBar.height-menuBar.height
@@ -77,7 +62,6 @@ function love.mousepressed(x, y, touch)
   end
   
   action.mousepressed(touch)
-  -- removed import/export mousepressed
   input.mousepressed(touch)
 end
 
@@ -132,7 +116,6 @@ function love.update(dt)
   mouse.update()
   action.update(dt)
   tool.update()
-  tile.update()
   menuBar.update()
   
 end
@@ -153,19 +136,10 @@ function love.draw()
   hud.drawButtonLeftBar(5, 50 + menuBar.height + hud.topBar.height, 10, 30, tool.list)
   hud.drawButtonLeftBar(5, 400 + menuBar.height + hud.topBar.height, 10, 30, action.list)
   hud.drawButtonLeftBar(5, 650 + menuBar.height + hud.topBar.height, 10, 30, action.importantList)
-  -- removed export/import buttons from top panel
   hud.drawTile(10, 70 + menuBar.height + hud.topBar.height, 1, 32)
   input.draw()
   
   -- Draw menu bar
   menuBar.draw()
   
-  
-end
-
-function love.filedropped(file)
-  -- Handle file drops for tileset selection when in new map modal
-  if menuBar.modal and menuBar.modal.state == "newMap" and newMap and newMap.handleFileDrop then
-    newMap.handleFileDrop(file)
-  end
 end

@@ -7,20 +7,14 @@ tilesetDisplay.tilesetClickAreas = {}
 tilesetDisplay.sectionPositions = {}
 
 function tilesetDisplay.drawTile(pX, pY, spacing, pTileWidth)
-  -- Check if any tilesets are available
-  if not grid.tileTexture or (#grid.tileTexture == 0 and (not grid.tilesets or #grid.tilesets == 0)) then
-    -- Draw "No tilesets" message
+  -- Only support multi-tileset mode
+  if not grid.tilesets or #grid.tilesets == 0 then
     love.graphics.setColor(0.6, 0.6, 0.6)
-    love.graphics.print("No tilesets available", window.width - 200 + 10, pY)  -- rightPanel.width
+    love.graphics.print("No tilesets available", window.width - 200 + 10, pY)
     love.graphics.print("Use 'Browse Tileset' to add one", window.width - 200 + 10, pY + 20)
     return
   end
-  
-  if grid.multiTilesetMode then
-    tilesetDisplay.drawMultiTilesets(pX, pY, spacing, pTileWidth)
-  else
-    tilesetDisplay.drawSingleTileset(pX, pY, spacing, pTileWidth)
-  end
+  tilesetDisplay.drawMultiTilesets(pX, pY, spacing, pTileWidth)
 end
 
 function tilesetDisplay.drawSingleTileset(pX, pY, spacing, pTileWidth)
@@ -177,35 +171,9 @@ function tilesetDisplay.drawTilesetSection(tileset, tilesetIndex, paddingX, star
           love.graphics.rectangle("fill", x - 1, y - 1, pTileWidth + 2, pTileWidth + 2)
         end
         
-        -- Draw tile
-        love.graphics.setColor(1, 1, 1)
-        local tileData = grid.tileTexture[globalTileId]
-        if type(tileData) == "table" then
-          love.graphics.draw(tileData.image, tileData.quad, x, y, 0, rapport, rapport)
-        else
-          love.graphics.draw(tileset.image, tileData, x, y, 0, rapport, rapport)
-        end
-      end
-      
-      tilesDrawn = tilesDrawn + 1
-      currentCol = currentCol + 1
-      
-      if currentCol >= nbColumn then
-        currentCol = 0
-        currentRow = currentRow + 1
       end
     end
   end
-  
-  return tilesDrawn
-end
-
-function tilesetDisplay.getTilesetClickAreas()
-  return tilesetDisplay.tilesetClickAreas
-end
-
-function tilesetDisplay.getSectionPositions()
-  return tilesetDisplay.sectionPositions
 end
 
 return tilesetDisplay

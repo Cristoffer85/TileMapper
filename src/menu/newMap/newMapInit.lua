@@ -43,7 +43,7 @@ function newMap.create(menu)
     local centerY = (grid.height * grid.tileHeight) / 2
     camera:setPosition(centerX - window.width/2, centerY - window.height/2)
   end
-  menu.hide()
+  require("src.menu.menuBar").hideModal()
 end
 
 return newMap

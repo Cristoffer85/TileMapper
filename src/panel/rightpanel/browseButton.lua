@@ -44,7 +44,7 @@ function browseButton.openTilesetBrowser()
   if filePath and filePath ~= "" and filePath:lower():match("%.png$") then
     local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
     if browseButton.copyTilesetToProject(filePath, filename) then
-      if grid.addSingleTileset(filename) then
+  if grid.addTileset(filename) then
         local tilesetScroll = require("panel.rightpanel.tilesetScroll")
         tilesetScroll.resetScroll()
         if tool and tool.camera then

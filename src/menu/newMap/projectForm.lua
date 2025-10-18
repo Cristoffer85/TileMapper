@@ -90,6 +90,7 @@ function mapForm.drawActionButtons(menu)
 end
 
 function mapForm.mousepressed(x, y, menu, data, controller)
+  local menuBar = require("src.menu.menuBar")
   -- Check input field clicks
   local fieldY = menu.y + 60
   local fieldHeight = 25
@@ -100,7 +101,7 @@ function mapForm.mousepressed(x, y, menu, data, controller)
     local fieldY_pos = fieldY + (i - 1) * (fieldHeight + 5)
     local inputX = menu.x + 20 + labelWidth
     
-    if menu.isMouseOver(inputX, fieldY_pos, inputWidth, fieldHeight) then
+  if menuBar.isMouseOverMenuItem(inputX, fieldY_pos, inputWidth, fieldHeight) then
       data.selectedField = i
       return true
     end
@@ -108,11 +109,11 @@ function mapForm.mousepressed(x, y, menu, data, controller)
   
   -- Check action buttons
   if mapForm.buttons then
-    if menu.isMouseOver(mapForm.buttons.create.x, mapForm.buttons.create.y, mapForm.buttons.create.w, mapForm.buttons.create.h) then
+  if menuBar.isMouseOverMenuItem(mapForm.buttons.create.x, mapForm.buttons.create.y, mapForm.buttons.create.w, mapForm.buttons.create.h) then
       controller.create(menu)
       return true
-    elseif menu.isMouseOver(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
-      menu.hide()
+  elseif menuBar.isMouseOverMenuItem(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
+  menuBar.hideModal()
       return true
     end
   end

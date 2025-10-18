@@ -1,3 +1,4 @@
+-- Tile selection logic moved to tilesetDisplay.lua
 -- Main right panel coordinator
 local rightPanel = {}
 local browseButton = require("panel.rightpanel.browseButton")
