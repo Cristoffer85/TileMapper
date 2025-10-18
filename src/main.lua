@@ -1,4 +1,4 @@
-local newMap = require("menu.newMap.newProjectInit")
+local newMap = require("menu.newMap.newMapInit")
 local didStartupCamera = false
 io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
