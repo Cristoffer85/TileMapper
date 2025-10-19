@@ -48,6 +48,11 @@ function newMap.create(menu)
     local centerY = (grid.height * grid.tileHeight) / 2
     camera:setPosition(centerX - window.width/2, centerY - window.height/2)
   end
+  -- After first successful new map, set inWelcomeFlow to false
+  local welcome = package.loaded["menu.welcome.welcome"]
+  if welcome then
+    welcome.inWelcomeFlow = false
+  end
   require("menu.menuBar").hideModal()
 end
 
