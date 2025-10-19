@@ -32,6 +32,18 @@ function topPanel.draw()
     love.graphics.print(widthLabel, input["c"].x - Font:getWidth(widthLabel) - 4, input["c"].y)
     love.graphics.print(heightLabel, input["l"].x - Font:getWidth(heightLabel) - 4, input["l"].y)
   end
+
+  -- Draw map name centered in top panel
+  if grid and grid.mapName then
+    love.graphics.setFont(Font)
+    local mapName = grid.mapName
+    local textWidth = Font:getWidth(mapName)
+    local textHeight = Font:getHeight()
+    local x = (topPanel.width - textWidth) / 2
+    local y = menuBar.height + (topPanel.height - textHeight) / 2
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(mapName, x, y)
+  end
 end
 
 function topPanel.drawButtonTopBar(pX, pY, spacing, width, name, title)

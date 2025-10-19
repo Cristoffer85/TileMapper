@@ -36,7 +36,12 @@ function newMap.create(menu)
     love.window.showMessageBox("Invalid Input", errorMsg, "error")
     return
   end
-  
+
+  -- Set map name globally for display
+  if grid then
+    grid.mapName = newMap.data.mapName
+  end
+
   -- Center camera on middle tile after map creation
   if grid and camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight then
     local centerX = (grid.width * grid.tileWidth) / 2

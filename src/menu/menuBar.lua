@@ -92,7 +92,8 @@ local function importFileDialog(extension, importFunc)
 end
 
 local function exportFileDialog(extension, exportFunc)
-  local filename = browse.saveFile(extension, "Select Export Location")
+    local defaultName = (grid and grid.mapName and #grid.mapName > 0) and grid.mapName or "map"
+    local filename = browse.saveFile(extension, "Select Export Location", defaultName .. extension)
   if filename then
     local file = io.open(filename, "w+")
     if file then

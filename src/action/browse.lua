@@ -66,9 +66,17 @@ function browse.openFile(extension, title)
 end
 
 -- Save file dialog
-function browse.saveFile(extension, title)
+function browse.saveFile(extension, title, defaultFilename)
   local fileBuffer = ffi.new("char[260]")
   fileBuffer[0] = 0
+  if defaultFilename and #defaultFilename > 0 then
+    local ext = extension:gsub("^%.","")
+    local filename = defaultFilename
+    if not filename:lower():match("%..+$") then
+      filename = filename .. ext
+    end
+    ffi.copy(fileBuffer, filename)
+  end
   local ofn = ffi.new("OPENFILENAMEA")
   ofn.lStructSize = ffi.sizeof("OPENFILENAMEA")
   ofn.hwndOwner = nil
