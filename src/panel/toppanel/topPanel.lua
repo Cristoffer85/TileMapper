@@ -27,8 +27,13 @@ function topPanel.draw()
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle("fill", 0, menuBar.height + topPanel.height-1, topPanel.width, 1)
 
-  -- Only draw input fields and map name if welcome modal is not visible
-  if not (welcome and welcome.visible) then
+  -- Only draw input fields and map name if no modal is visible
+  local modalActive = (welcome and welcome.visible)
+  local menuBar = package.loaded["menu.menuBar"]
+  if menuBar and menuBar.modal and menuBar.modal.visible then
+    modalActive = true
+  end
+  if not modalActive then
     -- Draw width/height labels for input fields (aligned with input fields)
     if input and input["c"] and input["l"] then
       love.graphics.setFont(Font)

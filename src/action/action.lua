@@ -20,7 +20,16 @@ action.ctrlZ.limit = 200
 action.ctrlZ.save = {}
 
 function action.update(dt)
-  action.move.f(dt)
+  -- Block grid movement if any modal is visible
+  local welcome = package.loaded["menu.welcome.welcome"]
+  local menuBar = package.loaded["menu.menuBar"]
+  local modalActive = (welcome and welcome.visible)
+  if menuBar and menuBar.modal and menuBar.modal.visible then
+    modalActive = true
+  end
+  if not modalActive then
+    action.move.f(dt)
+  end
   action.zoom.f()
   action.ctrlZ.f(dt)
 end

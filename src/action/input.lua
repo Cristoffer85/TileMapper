@@ -89,7 +89,12 @@ end
 
 function input.draw()
   local welcome = package.loaded["menu.welcome.welcome"]
-  if welcome and welcome.visible then return end
+  local menuBar = package.loaded["menu.menuBar"]
+  local modalActive = (welcome and welcome.visible)
+  if menuBar and menuBar.modal and menuBar.modal.visible then
+    modalActive = true
+  end
+  if modalActive then return end
   for i = 1, #input.list do
     local curInput = input[input.list[i]]
     local x = curInput.x
