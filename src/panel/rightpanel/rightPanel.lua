@@ -1,7 +1,7 @@
 -- Tile selection logic moved to tilesetDisplay.lua
 -- Main right panel coordinator
 local rightPanel = {}
-local browse = require("action.browse")
+local browse = require("utils.browse")
 local tilesetDisplay = require("panel.rightpanel.tilesetDisplay")
 local tilesetScroll = require("panel.rightpanel.tilesetScroll")
 local tilesetClick = require("panel.rightpanel.tilesetClick")

@@ -14,7 +14,7 @@ local import = require("menu.import.importMain")
 local export = require("menu.export.exportMain")
 menuBar.dropdownOpenTime = 0
 menuBar.height = 25
-local browse = require("action.browse")
+local browse = require("utils.browse")
 
 -- Modal dialog state for New Map
 local newMap = require("menu.newMap.newMapMain")

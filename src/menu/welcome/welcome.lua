@@ -1,7 +1,7 @@
 
 local welcome = {}
 local import = require("menu.import.importMain")
-local browse = require("action.browse")
+local browse = require("utils.browse")
 
 welcome.visible = true
 welcome.inWelcomeFlow = true
