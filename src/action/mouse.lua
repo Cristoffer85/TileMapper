@@ -1,10 +1,19 @@
 local mouse = {}
+local function modalActive()
+  local welcome = package.loaded["menu.welcome.welcome"]
+  local menuBar = package.loaded["menu.menuBar"]
+  return (welcome and welcome.visible) or (menuBar and menuBar.modal and menuBar.modal.visible)
+end
 mouse.currentColor = 1
 mouse.fillColor = mouse.currentColor
 
 function mouse.update()
   mouse.x = love.mouse.getX()
   mouse.y = love.mouse.getY()
+  if modalActive() then
+    mouse.zone = nil
+    return
+  end
   if mouse.y <= menuBar.height then
     mouse.zone = "menuBar"
   elseif mouse.y <= menuBar.height + hud.topBar.height then

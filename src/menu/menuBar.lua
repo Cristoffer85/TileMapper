@@ -143,9 +143,11 @@ function menuBar.draw()
   -- Menu items
   local x = 5
   love.graphics.setColor(0, 0, 0)
+  local welcome = package.loaded["menu.welcome.welcome"]
+  local modalActive = (welcome and welcome.visible) or (menuBar.modal and menuBar.modal.visible)
   for i, item in ipairs(menuBar.items) do
     local itemWidth = love.graphics.getFont():getWidth(item.label) + 16
-    if menuBar.isMouseOverMenuItem(x, 0, itemWidth, menuBar.height) or menuBar.activeDropdown == i then
+    if not modalActive and (menuBar.isMouseOverMenuItem(x, 0, itemWidth, menuBar.height) or menuBar.activeDropdown == i) then
       love.graphics.setColor(0.8, 0.8, 1.0)
       love.graphics.rectangle("fill", x, 0, itemWidth, menuBar.height)
       love.graphics.setColor(0, 0, 0)

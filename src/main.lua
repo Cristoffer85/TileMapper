@@ -50,39 +50,37 @@ function love.load()
 end
 
 function love.mousepressed(x, y, touch)
-  if welcome.visible and welcome.mousepressed(x, y, touch) then
+  -- Block all background input if any modal is visible
+  if welcome.visible then
+    welcome.mousepressed(x, y, touch)
     return
   end
-  -- MenuBar input has highest priority
-  if menuBar.mousepressed(x, y, touch) then
+  if menuBar.modal and menuBar.modal.visible then
+    menuBar.modalMousepressed(x, y, touch)
     return
   end
-  
-  -- Modal dialog input
-  if menuBar.modalMousepressed(x, y, touch) then
-    return
-  end
-  
-  -- HUD input for tileset selection
-  if hud.mousepressed(x, y, touch) then
-    return
-  end
-  
+  -- MenuBar input
+  if menuBar.mousepressed(x, y, touch) then return end
+  if hud.mousepressed(x, y, touch) then return end
   action.mousepressed(touch)
   input.mousepressed(touch)
 end
 
 function love.textinput(t)
-  -- Modal dialog input
-  if menuBar.modalTextinput(t) then
+  -- Block all background input if any modal is visible
+  if welcome.visible then return end
+  if menuBar.modal and menuBar.modal.visible then
+    menuBar.modalTextinput(t)
     return
   end
   input.textinput(t)
 end
 
 function love.keypressed(key)
-  -- Modal dialog input
-  if menuBar.modalKeypressed(key) then
+  -- Block all background input if any modal is visible
+  if welcome.visible then return end
+  if menuBar.modal and menuBar.modal.visible then
+    menuBar.modalKeypressed(key)
     return
   end
   input.keypressed(key)
@@ -94,6 +92,8 @@ end
     menuBar.draw()
   end
 function love.wheelmoved(x, y)
+  -- Block all background input if any modal is visible
+  if welcome.visible or (menuBar.modal and menuBar.modal.visible) then return end
   -- Try tileset scrolling first
   if not hud.scrollTileset(y) then
     -- If tileset didn't consume the scroll, use for zooming
@@ -151,11 +151,11 @@ function love.draw()
   hud.drawTile(10, 70 + menuBar.height + hud.topBar.height, 1, 32)
   input.draw()
 
-  -- Draw welcome modal above everything if visible, else draw menu bar
+  -- Always draw menu bar
+  menuBar.draw()
+  -- Draw welcome modal above everything if visible
   if welcome.visible then
     welcome.draw()
-  else
-    menuBar.draw()
   end
 
 end

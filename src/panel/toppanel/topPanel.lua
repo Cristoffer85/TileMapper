@@ -15,34 +15,41 @@ topPanel.width = window.width
 topPanel.height = 40
 
 function topPanel.draw()
-  -- Ensure dimension input fields are initialized
-  initDimensionInputs()
+  -- Hide all top panel content if welcome modal is visible
+  local welcome = package.loaded["menu.welcome.welcome"]
+  if not (welcome and welcome.visible) then
+    -- Ensure dimension input fields are initialized
+    initDimensionInputs()
+  end
+  -- Always draw toppanel background and border
   love.graphics.setColor(85/255, 85/255, 85/255)
-  -- Shift toppanel down by menuBar.height
   love.graphics.rectangle("fill", 0, menuBar.height, topPanel.width, topPanel.height)
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle("fill", 0, menuBar.height + topPanel.height-1, topPanel.width, 1)
 
-  -- Draw width/height labels for input fields (aligned with input fields)
-  if input and input["c"] and input["l"] then
-    love.graphics.setFont(Font)
-    local widthLabel = "width:"
-    local heightLabel = "height:"
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print(widthLabel, input["c"].x - Font:getWidth(widthLabel) - 4, input["c"].y)
-    love.graphics.print(heightLabel, input["l"].x - Font:getWidth(heightLabel) - 4, input["l"].y)
-  end
+  -- Only draw input fields and map name if welcome modal is not visible
+  if not (welcome and welcome.visible) then
+    -- Draw width/height labels for input fields (aligned with input fields)
+    if input and input["c"] and input["l"] then
+      love.graphics.setFont(Font)
+      local widthLabel = "width:"
+      local heightLabel = "height:"
+      love.graphics.setColor(1, 1, 1)
+      love.graphics.print(widthLabel, input["c"].x - Font:getWidth(widthLabel) - 4, input["c"].y)
+      love.graphics.print(heightLabel, input["l"].x - Font:getWidth(heightLabel) - 4, input["l"].y)
+    end
 
-  -- Draw map name centered in top panel
-  if grid and grid.mapName then
-    love.graphics.setFont(Font)
-    local mapName = grid.mapName
-    local textWidth = Font:getWidth(mapName)
-    local textHeight = Font:getHeight()
-    local x = (topPanel.width - textWidth) / 2
-    local y = menuBar.height + (topPanel.height - textHeight) / 2
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.print(mapName, x, y)
+    -- Draw map name centered in top panel
+    if grid and grid.mapName then
+      love.graphics.setFont(Font)
+      local mapName = grid.mapName
+      local textWidth = Font:getWidth(mapName)
+      local textHeight = Font:getHeight()
+      local x = (topPanel.width - textWidth) / 2
+      local y = menuBar.height + (topPanel.height - textHeight) / 2
+      love.graphics.setColor(1, 1, 1)
+      love.graphics.print(mapName, x, y)
+    end
   end
 end
 
