@@ -48,9 +48,11 @@ function newMap.create(menu)
     local centerY = (grid.height * grid.tileHeight) / 2
     camera:setPosition(centerX - window.width/2, centerY - window.height/2)
   end
-  -- After first successful new map, set inWelcomeFlow to false
-  -- Do not set inWelcomeFlow to false here; handled by menuBar and projectForm cancel logic
-  require("menu.menuBar").hideModal()
+  local menuBar = require("menu.menuBar")
+  if menuBar and menuBar.mapSession then
+    menuBar.mapSession.hasCreatedMap = true
+  end
+  menuBar.hideModal()
 end
 
 return newMap

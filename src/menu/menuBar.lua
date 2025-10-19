@@ -18,6 +18,7 @@ local browse = require("utils.browse")
 
 -- Modal dialog state for New Map
 local newMap = require("menu.newMap.newMapMain")
+menuBar.mapSession = { hasCreatedMap = false }
 
 menuBar.modal = {
   visible = false,
@@ -114,11 +115,11 @@ menuBar.items = {
         local confirmation = require("utils.confirmation")
         local function doShowNewMap()
           menuBar.showModal("newMap")
-          if welcome then welcome.inWelcomeFlow = false end
         end
-        if welcome and not welcome.inWelcomeFlow then
+        -- Only show confirmation if a map has already been created after welcome flow
+        if menuBar.mapSession.hasCreatedMap then
           confirmation.show(
-            "Are you sure you want to start a new map? All unsaved/unexported data will be lost!",
+            "Are you sure you want to start a new map?        \n All unsaved/unexported data will be lost!",
             doShowNewMap,
             function() end
           )

@@ -1,4 +1,3 @@
--- utils/confirmation.lua
 local confirmation = {}
 
 confirmation.visible = false
@@ -6,7 +5,7 @@ confirmation.message = ""
 confirmation.onYes = nil
 confirmation.onNo = nil
 confirmation.width = 420
-confirmation.height = 160
+confirmation.height = 210
 confirmation.x = 0
 confirmation.y = 0
 
@@ -33,17 +32,25 @@ function confirmation.draw()
   love.graphics.rectangle("fill", confirmation.x, confirmation.y, confirmation.width, confirmation.height)
   love.graphics.setColor(0.8, 0.8, 0.8)
   love.graphics.rectangle("line", confirmation.x, confirmation.y, confirmation.width, confirmation.height)
-  -- Message
+  -- Message (split into two lines, centered)
   love.graphics.setColor(1, 1, 1)
   love.graphics.setFont(Font)
-  local msgW = Font:getWidth(confirmation.message)
-  love.graphics.print(confirmation.message, confirmation.x + (confirmation.width - msgW) / 2, confirmation.y + 36)
+  local line1 = "Are you sure you want to start a new map?"
+  local line2 = "All unsaved/unexported data will be lost!"
+  local line1W = Font:getWidth(line1)
+  local line2W = Font:getWidth(line2)
+  local y1 = confirmation.y + 36
+  local y2 = y1 + Font:getHeight() + 10
+  love.graphics.print(line1, confirmation.x + (confirmation.width - line1W) / 2, y1)
+  -- Blank row
+  -- Second line
+  love.graphics.print(line2, confirmation.x + (confirmation.width - line2W) / 2, y2 + Font:getHeight())
   -- Yes/No buttons
   local btnW, btnH = 100, 36
   local spacing = 40
   local yesX = confirmation.x + confirmation.width/2 - btnW - spacing/2
   local noX = confirmation.x + confirmation.width/2 + spacing/2
-  local btnY = confirmation.y + confirmation.height - btnH - 28
+  local btnY = confirmation.y + confirmation.height - btnH - 38
   -- Yes button
   love.graphics.setColor(0.2, 0.7, 0.3)
   love.graphics.rectangle("fill", yesX, btnY, btnW, btnH, 8, 8)

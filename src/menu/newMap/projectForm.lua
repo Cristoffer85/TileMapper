@@ -73,7 +73,7 @@ function mapForm.drawActionButtons(menu)
   love.graphics.rectangle("line", createButtonX, buttonY, buttonW, fieldHeight)
   love.graphics.setColor(1, 1, 1)
   love.graphics.print("Create", createButtonX + 30, buttonY + 3)
-  
+
   -- Cancel button
   love.graphics.setColor(0.4, 0.2, 0.2)
   love.graphics.rectangle("fill", cancelButtonX, buttonY, buttonW, fieldHeight)
@@ -81,7 +81,7 @@ function mapForm.drawActionButtons(menu)
   love.graphics.rectangle("line", cancelButtonX, buttonY, buttonW, fieldHeight)
   love.graphics.setColor(1, 1, 1)
   love.graphics.print("Cancel", cancelButtonX + 30, buttonY + 3)
-  
+
   -- Store button info
   mapForm.buttons = {
     create = {x = createButtonX, y = buttonY, w = buttonW, h = fieldHeight},
@@ -109,17 +109,13 @@ function mapForm.mousepressed(x, y, menu, data, controller)
   
   -- Check action buttons
   if mapForm.buttons then
-  if menuBar.isMouseOverMenuItem(mapForm.buttons.create.x, mapForm.buttons.create.y, mapForm.buttons.create.w, mapForm.buttons.create.h) then
+    if menuBar.isMouseOverMenuItem(mapForm.buttons.create.x, mapForm.buttons.create.y, mapForm.buttons.create.w, mapForm.buttons.create.h) then
       controller.create(menu)
       return true
-  elseif menuBar.isMouseOverMenuItem(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
-    menuBar.hideModal()
-    local welcome = package.loaded["menu.welcome.welcome"]
-    if welcome and welcome.inWelcomeFlow then
-      welcome.visible = true
-      welcome.inWelcomeFlow = false
-    end
-    return true
+    elseif menuBar.isMouseOverMenuItem(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
+      local menuBar = require("menu.menuBar")
+      menuBar.hideModal()
+      return true
     end
   end
   
