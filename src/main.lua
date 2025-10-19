@@ -24,6 +24,7 @@ import = require("menu.import.importMain")
 input = require("action.input")
 menuBar = require("menu.menuBar")
 
+local welcome = require("menu.welcome.welcome")
 function love.load()
   
   -- Set default grid size to 48x48 tiles, tile size 64
@@ -42,10 +43,16 @@ function love.load()
   window.grid.height = window.height-hud.topBar.height-menuBar.height
 
   action.resetPos.f()
+
+  -- Show welcome modal on first load
+  welcome.visible = true
   
 end
 
 function love.mousepressed(x, y, touch)
+  if welcome.visible and welcome.mousepressed(x, y, touch) then
+    return
+  end
   -- MenuBar input has highest priority
   if menuBar.mousepressed(x, y, touch) then
     return
@@ -81,6 +88,11 @@ function love.keypressed(key)
   input.keypressed(key)
 end
 
+  if welcome.visible then
+    welcome.draw()
+  else
+    menuBar.draw()
+  end
 function love.wheelmoved(x, y)
   -- Try tileset scrolling first
   if not hud.scrollTileset(y) then
@@ -123,23 +135,27 @@ end
 function love.draw()
   
   love.graphics.setBackgroundColor(50/255, 50/255, 50/255)
-  
+
   camera:set()
     grid.draw()
     action.grid.f()
   camera:unset()
-  
+
   hud.leftBar.draw()
   hud.rightBar.draw()
   hud.topBar.draw()
-  
+
   hud.drawButtonLeftBar(5, 50 + menuBar.height + hud.topBar.height, 10, 30, tool.list)
   hud.drawButtonLeftBar(5, 400 + menuBar.height + hud.topBar.height, 10, 30, action.list)
   hud.drawButtonLeftBar(5, 650 + menuBar.height + hud.topBar.height, 10, 30, action.importantList)
   hud.drawTile(10, 70 + menuBar.height + hud.topBar.height, 1, 32)
   input.draw()
-  
-  -- Draw menu bar
-  menuBar.draw()
-  
+
+  -- Draw welcome modal above everything if visible, else draw menu bar
+  if welcome.visible then
+    welcome.draw()
+  else
+    menuBar.draw()
+  end
+
 end

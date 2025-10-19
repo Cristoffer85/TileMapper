@@ -1,21 +1,4 @@
-
 local menuBar = {}
-local import = require("menu.import.importMain")
-local export = require("menu.export.exportMain")
-menuBar.dropdownOpenTime = 0
-menuBar.height = 25
-local browse = require("action.browse")
-
--- Modal dialog state for New Map
-local newMap = require("menu.newMap.newMapMain")
-menuBar.modal = {
-  visible = false,
-  state = nil,
-  width = 400,
-  height = 300,
-  x = 0,
-  y = 0
-}
 
 function menuBar.showModal(state)
   menuBar.modal.state = state
@@ -27,6 +10,23 @@ function menuBar.hideModal()
   menuBar.modal.state = nil
   menuBar.modal.visible = false
 end
+local import = require("menu.import.importMain")
+local export = require("menu.export.exportMain")
+menuBar.dropdownOpenTime = 0
+menuBar.height = 25
+local browse = require("action.browse")
+
+-- Modal dialog state for New Map
+local newMap = require("menu.newMap.newMapMain")
+
+menuBar.modal = {
+  visible = false,
+  state = nil,
+  width = 400,
+  height = 300,
+  x = 0,
+  y = 0
+}
 
 function menuBar.updateModalPosition()
   menuBar.modal.x = (window.width - menuBar.modal.width) / 2
