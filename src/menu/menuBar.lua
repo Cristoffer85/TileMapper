@@ -114,7 +114,7 @@ menuBar.items = {
         local confirmation = require("utils.confirmation")
         local function doShowNewMap()
           menuBar.showModal("newMap")
-          if welcome then welcome.inWelcomeFlow = true end
+          if welcome then welcome.inWelcomeFlow = false end
         end
         if welcome and not welcome.inWelcomeFlow then
           confirmation.show(

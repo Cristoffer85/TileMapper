@@ -49,10 +49,7 @@ function newMap.create(menu)
     camera:setPosition(centerX - window.width/2, centerY - window.height/2)
   end
   -- After first successful new map, set inWelcomeFlow to false
-  local welcome = package.loaded["menu.welcome.welcome"]
-  if welcome then
-    welcome.inWelcomeFlow = false
-  end
+  -- Do not set inWelcomeFlow to false here; handled by menuBar and projectForm cancel logic
   require("menu.menuBar").hideModal()
 end
 

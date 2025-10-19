@@ -117,6 +117,7 @@ function mapForm.mousepressed(x, y, menu, data, controller)
     local welcome = package.loaded["menu.welcome.welcome"]
     if welcome and welcome.inWelcomeFlow then
       welcome.visible = true
+      welcome.inWelcomeFlow = false
     end
     return true
     end
