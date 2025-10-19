@@ -51,6 +51,11 @@ end
 
 function love.mousepressed(x, y, touch)
   -- Block all background input if any modal is visible
+  local confirmation = require("utils.confirmation")
+  if confirmation.visible then
+    confirmation.mousepressed(x, y, touch)
+    return
+  end
   if welcome.visible then
     welcome.mousepressed(x, y, touch)
     return
@@ -153,6 +158,11 @@ function love.draw()
 
   -- Always draw menu bar
   menuBar.draw()
+  -- Draw confirmation modal above everything if visible
+  local confirmation = require("utils.confirmation")
+  if confirmation.visible then
+    confirmation.draw()
+  end
   -- Draw welcome modal above everything if visible
   if welcome.visible then
     welcome.draw()

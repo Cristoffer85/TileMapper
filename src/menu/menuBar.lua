@@ -109,7 +109,23 @@ menuBar.items = {
   {
     label = "File",
     items = {
-      {label = "New Map", action = function() menuBar.showModal("newMap") end},
+      {label = "New Map", action = function()
+        local welcome = package.loaded["menu.welcome.welcome"]
+        local confirmation = require("utils.confirmation")
+        local function doShowNewMap()
+          menuBar.showModal("newMap")
+          if welcome then welcome.inWelcomeFlow = true end
+        end
+        if welcome and not welcome.inWelcomeFlow then
+          confirmation.show(
+            "Are you sure you want to start a new map? All unsaved/unexported data will be lost!",
+            doShowNewMap,
+            function() end
+          )
+        else
+          doShowNewMap()
+        end
+      end},
       {label = "divider"},
       {label = "Import .txt", action = function() importFileDialog(".txt", import.txt) end},
       {label = "Import json", action = function() importFileDialog(".json", import.json) end},

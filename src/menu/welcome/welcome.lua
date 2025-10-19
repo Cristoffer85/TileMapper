@@ -92,11 +92,23 @@ function welcome.mousepressed(x, y, button)
   -- Start new map button
   local newY = btnY + btnH + spacing/2
   if x >= col2x and x <= col2x+btnW and y >= newY and y <= newY+btnH then
-    welcome.visible = false
-    local menuBar = package.loaded["menu.menuBar"]
-    if menuBar and menuBar.showModal then
-      menuBar.showModal("newMap")
-      welcome.inWelcomeFlow = true
+    local confirmation = require("utils.confirmation")
+    local function doShowNewMap()
+      welcome.visible = false
+      local menuBar = package.loaded["menu.menuBar"]
+      if menuBar and menuBar.showModal then
+        menuBar.showModal("newMap")
+        welcome.inWelcomeFlow = true
+      end
+    end
+    if not welcome.inWelcomeFlow then
+      confirmation.show(
+        "Are you sure you want to start a new map? All unsaved/unexported data will be lost!",
+        doShowNewMap,
+        function() end
+      )
+    else
+      doShowNewMap()
     end
     return true
   end
