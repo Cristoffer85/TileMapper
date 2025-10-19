@@ -4,6 +4,7 @@ local import = require("menu.import.importMain")
 local browse = require("action.browse")
 
 welcome.visible = true
+welcome.inWelcomeFlow = true
 welcome.width = 500
 welcome.height = 260
 welcome.x = 0
@@ -79,8 +80,12 @@ function welcome.mousepressed(x, y, button)
           btn[3](file)
           io.close(file)
         end
+        welcome.inWelcomeFlow = false
+        welcome.visible = false
+      else
+        -- If dialog was closed without importing, stay in welcome modal
+        welcome.visible = true
       end
-      welcome.visible = false
       return true
     end
   end
@@ -91,6 +96,7 @@ function welcome.mousepressed(x, y, button)
     local menuBar = package.loaded["menu.menuBar"]
     if menuBar and menuBar.showModal then
       menuBar.showModal("newMap")
+      welcome.inWelcomeFlow = true
     end
     return true
   end

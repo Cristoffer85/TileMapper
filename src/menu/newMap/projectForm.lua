@@ -113,8 +113,12 @@ function mapForm.mousepressed(x, y, menu, data, controller)
       controller.create(menu)
       return true
   elseif menuBar.isMouseOverMenuItem(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
-  menuBar.hideModal()
-      return true
+    menuBar.hideModal()
+    local welcome = package.loaded["menu.welcome.welcome"]
+    if welcome and welcome.inWelcomeFlow then
+      welcome.visible = true
+    end
+    return true
     end
   end
   
