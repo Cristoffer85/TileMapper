@@ -73,7 +73,10 @@ end
 
 function love.textinput(t)
   -- Block all background input if any modal is visible
-  if welcome.visible then return end
+  if welcome.visible then
+    welcome.textinput(t)
+    return
+  end
   if menuBar.modal and menuBar.modal.visible then
     menuBar.modalTextinput(t)
     return
@@ -83,7 +86,10 @@ end
 
 function love.keypressed(key)
   -- Block all background input if any modal is visible
-  if welcome.visible then return end
+  if welcome.visible then
+    welcome.keypressed(key)
+    return
+  end
   if menuBar.modal and menuBar.modal.visible then
     menuBar.modalKeypressed(key)
     return

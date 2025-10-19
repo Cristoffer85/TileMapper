@@ -1,4 +1,3 @@
-
 local welcome = {}
 local import = require("menu.import.importMain")
 local browse = require("utils.browse")
@@ -13,21 +12,12 @@ welcome.y = 0
 function welcome.updatePosition()
   welcome.x = (window.width - welcome.width) / 2 - 55
   welcome.y = (window.height - welcome.height) / 2
+  welcome.x = (window.width - welcome.width) / 2 - 55
+  welcome.y = (window.height - welcome.height) / 2
 end
 
 function welcome.draw()
-  -- Draw vertical divider between columns (after background, before content)
-  local dividerX = welcome.x + welcome.width/2 - 40
-  love.graphics.setColor(0.7, 0.7, 0.7)
-  love.graphics.setLineWidth(2)
-  love.graphics.line(dividerX, welcome.y + 100, dividerX, welcome.y + welcome.height - 30)
-  love.graphics.setLineWidth(1)
-  -- Draw vertical divider between columns
-  local dividerX = welcome.x + welcome.width/2 - 40
-  love.graphics.setColor(0.7, 0.7, 0.7)
-  love.graphics.setLineWidth(2)
-  love.graphics.line(dividerX, welcome.y + 100, dividerX, welcome.y + welcome.height - 30)
-  love.graphics.setLineWidth(1)
+  -- Draw modal background first
   if not welcome.visible then return end
   welcome.updatePosition()
   -- Fade background
@@ -38,6 +28,34 @@ function welcome.draw()
   love.graphics.rectangle("fill", welcome.x, welcome.y, welcome.width, welcome.height)
   love.graphics.setColor(0.8, 0.8, 0.8)
   love.graphics.rectangle("line", welcome.x, welcome.y, welcome.width, welcome.height)
+  -- Draw vertical divider between columns (after background, before content)
+  local dividerX = welcome.x + welcome.width/2 - 80
+  love.graphics.setColor(0.1, 0.1, 0.1) -- very dark gray
+  love.graphics.setLineWidth(3)
+  love.graphics.line(dividerX, welcome.y + 100, dividerX, welcome.y + welcome.height - 30)
+  love.graphics.setLineWidth(1)
+-- (removed redundant end)
+
+function welcome.textinput(text)
+  if not welcome.visible then return false end
+  local mapForm = require("src.menu.newMap.projectForm")
+  if welcome.newMapData then
+    -- Forward text input to the selected field
+    return mapForm.textinput(text, welcome.newMapData)
+  end
+  return false
+end
+
+function welcome.keypressed(key)
+  if not welcome.visible then return false end
+  local mapForm = require("src.menu.newMap.projectForm")
+  if welcome.newMapData then
+    -- Use dummy menu for compatibility
+    local menu = {x=0, y=0, width=0, height=0}
+    return mapForm.keypressed(key, menu, welcome.newMapData)
+  end
+  return false
+end
   -- Welcome text
   love.graphics.setColor(1, 1, 1)
   local title = "Welcome to TileMapper!"
@@ -100,7 +118,15 @@ function welcome.draw()
     love.graphics.setColor(0.8, 0.8, 0.8)
     love.graphics.rectangle("line", inputX, y, fieldInputWidth, fieldHeight)
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print(welcome.newMapData[field] or "", inputX + 5, y + 3)
+    -- Show a blinking cursor if this field is selected
+    local value = welcome.newMapData[field] or ""
+    if selected then
+      local t = love.timer.getTime()
+      if math.floor(t * 2) % 2 == 0 then
+        value = value .. "|"
+      end
+    end
+    love.graphics.print(value, inputX + 5, y + 3)
   end
   -- Draw create button below all fields
   local buttonW = 100
