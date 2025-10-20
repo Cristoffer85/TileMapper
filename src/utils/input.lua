@@ -1,4 +1,79 @@
 local input = {}
+
+function input.modalTextinput(text)
+  local ctx = input.modalFields
+  local field = ctx.fields[ctx.selectedField]
+  if field then
+    local val = tostring(ctx[field] or "")
+    ctx[field] = val .. text
+    if love.graphics then love.graphics.present() end
+    return true
+  end
+  return false
+end
+
+function input.modalKeypressed(key)
+  local ctx = input.modalFields
+  if key == "tab" then
+    ctx.selectedField = ctx.selectedField + 1
+    if ctx.selectedField > #ctx.fields then ctx.selectedField = 1 end
+    if love.graphics then love.graphics.present() end
+    return true
+  elseif key == "backspace" then
+    local field = ctx.fields[ctx.selectedField]
+    if field and ctx[field] then
+      local val = tostring(ctx[field] or "")
+      ctx[field] = string.sub(val, 1, -2)
+      if love.graphics then love.graphics.present() end
+    end
+    return true
+  elseif key == "return" then
+    -- Trigger create action (handled in modal)
+    if love.graphics then love.graphics.present() end
+    return true
+  end
+  return false
+end
+
+-- Modal input context for new map fields (welcome modal)
+input.modalFields = {
+  fields = {"mapName", "mapWidth", "mapHeight", "tileSize"},
+  selectedField = 1,
+  mapName = "NewMap",
+  mapWidth = "128",
+  mapHeight = "128",
+  tileSize = "64"
+}
+
+function input.modalMousepressed(x, y, menu, onCreate, fieldHeight, spacing)
+  -- Field selection
+  local fieldY = menu.y
+  fieldHeight = fieldHeight or 25
+  local labelWidth = 120
+  local inputWidth = 150
+  spacing = spacing or 12
+  for i = 1, #input.modalFields.fields do
+    local fieldY_pos = fieldY + (i - 1) * (fieldHeight + spacing)
+    local inputX = menu.x + 20 + labelWidth
+    if x >= inputX and x <= inputX+inputWidth and y >= fieldY_pos and y <= fieldY_pos+fieldHeight then
+      input.modalFields.selectedField = i
+      return true
+    end
+  end
+  -- Create button
+  local buttonW = 100
+  local extraSpacing = 8
+  local createY = fieldY + #input.modalFields.fields * (fieldHeight + spacing) + extraSpacing
+  local labelX = menu.x + 20
+  local inputX = labelX + labelWidth
+  local createButtonX = labelX + ((inputX - labelX + inputWidth) / 2) - (buttonW / 2)
+  if x >= createButtonX and x <= createButtonX+buttonW and y >= createY and y <= createY+fieldHeight then
+    if onCreate then onCreate(input.modalFields) end
+    return true
+  end
+  return false
+end
+
 input.list = {"c", "l"}
 
 function input.add(name, toUpdate, x, y, nextTab)

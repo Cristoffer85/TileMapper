@@ -90,65 +90,6 @@ function mapForm.drawActionButtons(menu)
 end
 
 function mapForm.mousepressed(x, y, menu, data, controller)
-  local menuBar = require("menu.menuBar")
-  -- Check input field clicks
-  local fieldY = menu.y + 60
-  local fieldHeight = 25
-  local labelWidth = 120
-  local inputWidth = 150
-  
-  for i = 1, #mapForm.fields do
-    local fieldY_pos = fieldY + (i - 1) * (fieldHeight + 5)
-    local inputX = menu.x + 20 + labelWidth
-    
-  if menuBar.isMouseOverMenuItem(inputX, fieldY_pos, inputWidth, fieldHeight) then
-      data.selectedField = i
-      return true
-    end
-  end
-  
-  -- Check action buttons
-  if mapForm.buttons then
-    if menuBar.isMouseOverMenuItem(mapForm.buttons.create.x, mapForm.buttons.create.y, mapForm.buttons.create.w, mapForm.buttons.create.h) then
-      controller.create(menu)
-      return true
-    elseif menuBar.isMouseOverMenuItem(mapForm.buttons.cancel.x, mapForm.buttons.cancel.y, mapForm.buttons.cancel.w, mapForm.buttons.cancel.h) then
-      local menuBar = require("menu.menuBar")
-      menuBar.hideModal()
-      return true
-    end
-  end
-  
-  return false
-end
-
-function mapForm.textinput(text, data)
-  local field = mapForm.fields[data.selectedField]
-  if field then
-    data[field] = (data[field] or "") .. text
-    return true
-  end
-  return false
-end
-
-function mapForm.keypressed(key, menu, data)
-  if key == "tab" then
-    data.selectedField = data.selectedField + 1
-    if data.selectedField > #mapForm.fields then
-      data.selectedField = 1
-    end
-    return true
-  elseif key == "backspace" then
-  local field = mapForm.fields[data.selectedField]
-    if field and data[field] then
-      data[field] = string.sub(data[field], 1, -2)
-    end
-    return true
-  elseif key == "return" then
-    -- Trigger create action (would need controller reference)
-    return true
-  end
-  
   return false
 end
 
