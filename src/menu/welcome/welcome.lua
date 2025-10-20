@@ -95,13 +95,18 @@ end
     local selected = (input.modalFields.selectedField == i)
     love.graphics.setColor(selected and {0.5, 0.5, 0.8} or {0.3, 0.3, 0.3})
     love.graphics.rectangle("fill", inputX, y, fieldInputWidth, fieldHeight)
+    -- Draw selection highlight if selectAll is true for this field
+    if selected and input.modalFields.selectAll then
+      love.graphics.setColor(0.2, 0.5, 0.9, 0.5)
+      love.graphics.rectangle("fill", inputX+1, y+1, fieldInputWidth-2, fieldHeight-2)
+    end
     love.graphics.setColor(0.8, 0.8, 0.8)
     love.graphics.rectangle("line", inputX, y, fieldInputWidth, fieldHeight)
     love.graphics.setColor(1, 1, 1)
     local value = tostring(input.modalFields[field] or "")
     if selected then
       local t = love.timer.getTime()
-      if math.floor(t * 2) % 2 == 0 then
+      if math.floor(t * 2) % 2 == 0 and not input.modalFields.selectAll then
         value = value .. "|"
       end
     end

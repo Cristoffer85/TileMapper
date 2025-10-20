@@ -5,7 +5,12 @@ function input.modalTextinput(text)
   local field = ctx.fields[ctx.selectedField]
   if field then
     local val = tostring(ctx[field] or "")
-    ctx[field] = val .. text
+    if ctx.selectAll then
+      ctx[field] = text
+      ctx.selectAll = false
+    else
+      ctx[field] = val .. text
+    end
     if love.graphics then love.graphics.present() end
     return true
   end
@@ -22,8 +27,13 @@ function input.modalKeypressed(key)
   elseif key == "backspace" then
     local field = ctx.fields[ctx.selectedField]
     if field and ctx[field] then
-      local val = tostring(ctx[field] or "")
-      ctx[field] = string.sub(val, 1, -2)
+      if ctx.selectAll then
+        ctx[field] = ""
+        ctx.selectAll = false
+      else
+        local val = tostring(ctx[field] or "")
+        ctx[field] = string.sub(val, 1, -2)
+      end
       if love.graphics then love.graphics.present() end
     end
     return true
@@ -52,11 +62,19 @@ function input.modalMousepressed(x, y, menu, onCreate, fieldHeight, spacing)
   local labelWidth = 120
   local inputWidth = 150
   spacing = spacing or 12
+  local now = love.timer.getTime()
+  input.modalFields._lastClick = input.modalFields._lastClick or {time=0, field=0}
   for i = 1, #input.modalFields.fields do
     local fieldY_pos = fieldY + (i - 1) * (fieldHeight + spacing)
     local inputX = menu.x + 20 + labelWidth
     if x >= inputX and x <= inputX+inputWidth and y >= fieldY_pos and y <= fieldY_pos+fieldHeight then
+      if input.modalFields.selectedField == i and input.modalFields._lastClick.field == i and (now - input.modalFields._lastClick.time) < 0.3 then
+        input.modalFields.selectAll = true
+      else
+        input.modalFields.selectAll = false
+      end
       input.modalFields.selectedField = i
+      input.modalFields._lastClick = {time=now, field=i}
       return true
     end
   end
@@ -71,6 +89,7 @@ function input.modalMousepressed(x, y, menu, onCreate, fieldHeight, spacing)
     if onCreate then onCreate(input.modalFields) end
     return true
   end
+  input.modalFields.selectAll = false
   return false
 end
 
