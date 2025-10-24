@@ -26,7 +26,6 @@ menuBar = require("menu.menuBar")
 
 local welcome = require("menu.welcome.welcome")
 function love.load()
-  
   -- Set default grid size to 48x48 tiles, tile size 64
   grid.width = 48
   grid.height = 48
@@ -46,7 +45,10 @@ function love.load()
 
   -- Show welcome modal on first load
   welcome.visible = true
-  
+end
+
+function love.keyreleased(key)
+  require("utils.input").modalKeyreleased(key)
 end
 
 function love.mousepressed(x, y, touch)
@@ -122,7 +124,6 @@ function love.resize(w, h)
 end
 
 function love.update(dt)
-  
   -- One-time camera centering and zoom after all initializations
   if not didStartupCamera and camera and grid and grid.width and grid.height and grid.tileWidth and grid.tileHeight and hud and hud.leftBar and hud.rightBar and hud.topBar then
     local usableWidth = window.width - (hud.leftBar.width or 0) - (hud.rightBar.width or 0)
@@ -140,11 +141,10 @@ function love.update(dt)
   action.update(dt)
   tool.update()
   menuBar.update()
-  
+  require("utils.input").update(dt)
 end
 
 function love.draw()
-  
   love.graphics.setBackgroundColor(50/255, 50/255, 50/255)
 
   camera:set()

@@ -1,4 +1,11 @@
+
 local input = {}
+-- For continuous backspace deletion
+input._modalBackspaceHeld = false
+input._modalBackspaceLast = 0
+input._modalBackspaceInitialDelay = 0.3
+input._modalBackspaceRepeatInterval = 0.05
+input._modalBackspaceFirst = true
 
 function input.modalTextinput(text)
   local ctx = input.modalFields
@@ -12,7 +19,6 @@ function input.modalTextinput(text)
       ctx[field] = val .. text
     end
     if love.graphics then love.graphics.present() end
-    return true
   end
   return false
 end
@@ -23,8 +29,9 @@ function input.modalKeypressed(key)
     ctx.selectedField = ctx.selectedField + 1
     if ctx.selectedField > #ctx.fields then ctx.selectedField = 1 end
     if love.graphics then love.graphics.present() end
-    return true
-  elseif key == "backspace" then
+  end
+  if key == "backspace" then
+    -- Only delete one character (or clear field if selected) on single press
     local field = ctx.fields[ctx.selectedField]
     if field and ctx[field] then
       if ctx.selectAll then
@@ -36,13 +43,51 @@ function input.modalKeypressed(key)
       end
       if love.graphics then love.graphics.present() end
     end
+    -- Set up for repeat logic
+    input._modalBackspaceHeld = true
+    input._modalBackspaceFirst = true
+    input._modalBackspaceLast = love.timer.getTime() + input._modalBackspaceInitialDelay
     return true
-  elseif key == "return" then
+  end
+  if key == "return" then
     -- Trigger create action (handled in modal)
     if love.graphics then love.graphics.present() end
     return true
   end
   return false
+end
+
+function input.modalKeyreleased(key)
+  if key == "backspace" then
+    input._modalBackspaceHeld = false
+    input._modalBackspaceFirst = true
+  end
+end
+function input.update(dt)
+  -- Continuous backspace for modal fields
+  if input._modalBackspaceHeld and input.modalFields.selectedField then
+    local now = love.timer.getTime()
+    local interval = input._modalBackspaceFirst and input._modalBackspaceInitialDelay or input._modalBackspaceRepeatInterval
+    if not input._modalBackspaceLast or (now - input._modalBackspaceLast) > interval then
+      local ctx = input.modalFields
+      local field = ctx.fields[ctx.selectedField]
+      if field and ctx[field] and ctx[field] ~= "" then
+        if ctx.selectAll then
+          ctx[field] = ""
+          ctx.selectAll = false
+        else
+          local val = tostring(ctx[field] or "")
+          ctx[field] = string.sub(val, 1, -2)
+        end
+        if love.graphics then love.graphics.present() end
+      end
+      input._modalBackspaceLast = now
+      input._modalBackspaceFirst = false
+    end
+  else
+    input._modalBackspaceLast = love.timer.getTime()
+    input._modalBackspaceFirst = true
+  end
 end
 
 -- Modal input context for new map fields (welcome modal)
@@ -73,9 +118,10 @@ function input.modalMousepressed(x, y, menu, onCreate, fieldHeight, spacing)
       else
         input.modalFields.selectAll = false
       end
-      input.modalFields.selectedField = i
-      input.modalFields._lastClick = {time=now, field=i}
-      return true
+  input.modalFields.selectedField = i
+  input.modalFields._lastClick = {time=now, field=i}
+  input._modalBackspaceHeld = false
+  return true
     end
   end
   -- Create button
