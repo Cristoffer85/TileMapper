@@ -175,6 +175,37 @@ function leftPanel.draw()
   love.graphics.rectangle("fill", 0, menuBar.height + 40, leftPanel.width, leftPanel.height - menuBar.height - 40)
   love.graphics.setColor(0, 0, 0)
   love.graphics.rectangle("fill", leftPanel.width-1, menuBar.height + 40, 1, leftPanel.height - menuBar.height - 40)
+
+  -- Draw currently selected tile at the top of the left panel
+  local buttonSize = 30
+  local tileX = 5
+  local tileY = menuBar.height + hud.topBar.height + 5
+  -- Checkerboard background for visibility
+  for i=0,1 do for j=0,1 do
+    if (i+j)%2==0 then love.graphics.setColor(0.85,0.85,0.85) else love.graphics.setColor(0.7,0.7,0.7) end
+    love.graphics.rectangle("fill", tileX+i*buttonSize/2, tileY+j*buttonSize/2, buttonSize/2, buttonSize/2)
+  end end
+  love.graphics.setColor(0.7, 0.7, 0.7)
+  love.graphics.rectangle("line", tileX, tileY, buttonSize, buttonSize)
+  local tileId = mouse.currentColor
+  local found = false
+  if tileId and grid.tileTexture and grid.tileTexture[tileId] and grid.tilesets and #grid.tilesets > 0 then
+    local tex = grid.tileTexture[tileId]
+    local tilesetIndex = tex.tilesetIndex
+    local ts = tilesetIndex and grid.tilesets[tilesetIndex]
+    if ts and ts.image and tex.quad then
+      love.graphics.setColor(1, 1, 1)
+      local scaleX = (buttonSize-4)/grid.tileWidth
+      local scaleY = (buttonSize-4)/grid.tileHeight
+      love.graphics.draw(ts.image, tex.quad, tileX + 2, tileY + 2, 0, scaleX, scaleY)
+      found = true
+    end
+  end
+  if not found then
+    -- Draw a red border if no tile is selected or found
+    love.graphics.setColor(1,0,0)
+    love.graphics.rectangle("line", tileX+2, tileY+2, buttonSize-4, buttonSize-4)
+  end
 end
 
 function leftPanel.drawButtonLeftBar(pX, pY, spacing, height, name)
