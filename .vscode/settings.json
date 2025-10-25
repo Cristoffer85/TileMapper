@@ -8,6 +8,7 @@
         "**/.vscode/**": true
     },
     "Lua.diagnostics.globals": [
-        "love"
+        "love",
+        "welcome"
     ]
 }
