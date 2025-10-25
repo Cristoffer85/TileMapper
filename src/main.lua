@@ -29,7 +29,7 @@ function love.load()
   -- Only load grid, do not set default size (let new map creation handle it)
   grid.load()
 
-  action.resetPos.f()
+  action.resetPos()
 
   -- Load button images after Love2D is properly initialized
   hud.button.load()
@@ -37,7 +37,7 @@ function love.load()
   window.grid.width = window.width-hud.leftBar.width-hud.rightBar.width
   window.grid.height = window.height-hud.topBar.height-menuBar.height
 
-  action.resetPos.f()
+  action.resetPos()
 
   -- Show welcome modal on first load
   welcome.visible = true
@@ -131,10 +131,10 @@ function love.keypressed(key)
   end
   -- Zoom in/out with + and - keys (main and keypad)
   if key == "kp-" then
-    action.zoom.wheelmoved(-1)
+    action.zoomWheel(-1)
     return
   elseif key == "kp+" then
-    action.zoom.wheelmoved(1)
+    action.zoomWheel(1)
     return
   end
   input.keypressed(key)
@@ -151,7 +151,7 @@ function love.wheelmoved(x, y)
   -- Try tileset scrolling first
   if not hud.scrollTileset(y) then
     -- If tileset didn't consume the scroll, use for zooming
-    action.zoom.wheelmoved(y)
+    action.zoomWheel(y)
   end
 end
 
@@ -190,7 +190,7 @@ function love.draw()
 
   camera:set()
     grid.draw()
-    action.grid.f()
+  action.drawGrid()
   camera:unset()
 
   hud.leftBar.draw()
