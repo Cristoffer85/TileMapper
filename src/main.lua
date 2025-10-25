@@ -26,11 +26,7 @@ menuBar = require("menu.menuBar")
 
 local welcome = require("menu.welcome.welcome")
 function love.load()
-  -- Set default grid size to 48x48 tiles, tile size 64
-  grid.width = 48
-  grid.height = 48
-  grid.tileWidth = 64
-  grid.tileHeight = 64
+  -- Only load grid, do not set default size (let new map creation handle it)
   grid.load()
 
   action.resetPos.f()

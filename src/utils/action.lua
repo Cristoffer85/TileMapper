@@ -70,7 +70,7 @@ function action.draw()
 end
 
 function action.resetPos.f()
-  camera:setScale(1, 1)
+  camera:setScale(3, 3)
   if grid and camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight then
     local centerX = (grid.width * grid.tileWidth) / 2
     local centerY = (grid.height * grid.tileHeight) / 2
