@@ -61,7 +61,7 @@ function confirmation.draw()
   love.graphics.setColor(0.7, 0.2, 0.2)
   love.graphics.rectangle("fill", noX, btnY, btnW, btnH, 8, 8)
   love.graphics.setColor(1, 1, 1)
-  local noLabel = "No"
+  local noLabel = "Cancel"
   love.graphics.print(noLabel, noX + (btnW-Font:getWidth(noLabel))/2, btnY + (btnH-Font:getHeight())/2)
   -- Store button positions for click detection
   confirmation._yesBtn = {x = yesX, y = btnY, w = btnW, h = btnH}

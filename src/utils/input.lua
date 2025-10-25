@@ -73,7 +73,7 @@ function input.update(dt)
       local field = ctx.fields[ctx.selectedField]
       if field and ctx[field] and ctx[field] ~= "" then
         if ctx.selectAll then
-          ctx[field] = ""
+          ctx[field] = "" 
           ctx.selectAll = false
         else
           local val = tostring(ctx[field] or "")
