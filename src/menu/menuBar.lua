@@ -10,11 +10,14 @@ function menuBar.hideModal()
   menuBar.modal.state = nil
   menuBar.modal.visible = false
 end
+
 local import = require("menu.import.importMain")
 local export = require("menu.export.exportMain")
 menuBar.dropdownOpenTime = 0
 menuBar.height = 25
 local browse = require("utils.browse")
+local about = require("menu.about.about")
+local controls = require("menu.controls.controls")
 
 -- Modal dialog state for New Map
 local newMap = require("menu.newMap.newMapMain")
@@ -322,16 +325,13 @@ function menuBar.update()
   end
 end
 
+
 function menuBar.showAbout()
-  love.window.showMessageBox("About TileMapper", 
-    "TileMapper v1.0\n\nA tile-based map editor built with Love2D\n\nFeatures:\n- Visual tile placement\n- Multiple export formats\n- Fullscreen support\n- Multiple Tileset handling", 
-    "info")
+  about.show()
 end
 
 function menuBar.showControls()
-  love.window.showMessageBox("Controls", 
-    "Mouse Controls:\n- Left Click: Place tile\n- Right Click: Erase\n- Mouse Wheel: Zoom (map area) or Scroll (tileset area)\n\nKeyboard:\n- F11 or Alt+Enter: Toggle fullscreen\n- WASD: Move camera\n- Ctrl +/-: Zoom in/out\n\nMenu: Use the menu bar above", 
-    "info")
+  controls.show()
 end
 
 return menuBar

@@ -56,7 +56,16 @@ end
 local isRightDragging = false
 local lastDragX, lastDragY = 0, 0
 
+-- Utility to force stop right drag (e.g. after modal closes)
+local function stopRightDrag()
+  isRightDragging = false
+end
+
 function love.mousepressed(x, y, touch)
+  -- Always stop right drag on any left mouse press (prevents sticky drag after native dialogs)
+  if touch == mouseTouch1 then
+    stopRightDrag()
+  end
   -- Block all background input if any modal is visible
   local confirmation = require("utils.confirmation")
   if confirmation.visible then
@@ -85,7 +94,11 @@ function love.mousepressed(x, y, touch)
 end
 
 function love.mousereleased(x, y, touch)
-  if touch == mouseTouch2 then
+  -- Always stop right drag if any modal is visible (prevents sticky drag after modal closes)
+  local confirmation = require("utils.confirmation")
+  if confirmation.visible or welcome.visible or (menuBar.modal and menuBar.modal.visible) then
+    stopRightDrag()
+  elseif touch == mouseTouch2 then
     isRightDragging = false
   end
 end
@@ -111,6 +124,7 @@ function love.textinput(t)
   input.textinput(t)
 end
 
+
 function love.keypressed(key)
   -- Block all background input if any modal is visible
   if welcome.visible then
@@ -119,6 +133,14 @@ function love.keypressed(key)
   end
   if menuBar.modal and menuBar.modal.visible then
     menuBar.modalKeypressed(key)
+    return
+  end
+  -- Zoom in/out with + and - keys (main and keypad)
+  if key == "kp-" then
+    action.zoom.wheelmoved(-1)
+    return
+  elseif key == "kp+" then
+    action.zoom.wheelmoved(1)
     return
   end
   input.keypressed(key)
