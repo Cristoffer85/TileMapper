@@ -1,3 +1,27 @@
+-- Handle quit confirmation for unsaved changes
+local pendingQuit = false
+
+function love.quit()
+  -- Only intercept if there are unsaved changes
+  if grid and grid.isDirty and not pendingQuit then
+    local confirmation = require("src.ui.confirmation")
+    -- If confirmation is already visible, don't show again
+    if not confirmation.visible then
+      confirmation.show(
+        "You have non-exported changes! \n Are you sure you want to quit?",
+        function()
+          pendingQuit = true
+          love.event.quit()
+        end,
+        function()
+          pendingQuit = false
+        end
+      )
+    end
+    return true -- Prevent quit for now
+  end
+  return false -- Allow quit
+end
 -- Helper to always get welcome modal
 local function getWelcome()
   return require("menu.welcome.welcome")
@@ -23,7 +47,6 @@ local loadingTimer = 0
 local loadingMinTime = 0.7 -- seconds to show loading screen at minimum
 local runningManImg = nil
 local runningManFrame = 1
-local runningManAnimTime = 0
 local runningManStartTime = nil
 local runningManAnimSpeed = 0.12 -- seconds per frame
 local runningManFrames = 8 -- number of frames in the png
@@ -62,7 +85,6 @@ function love.keyreleased(key)
   require("utils.input").modalKeyreleased(key)
 end
 
-
 -- State for right mouse drag
 local isRightDragging = false
 
@@ -77,7 +99,7 @@ function love.mousepressed(x, y, touch)
     stopRightDrag()
   end
   -- Block all background input if any modal is visible
-  local confirmation = require("utils.confirmation")
+  local confirmation = require("src.ui.confirmation")
   if confirmation.visible then
     confirmation.mousepressed(x, y, touch)
     return
@@ -105,7 +127,7 @@ end
 
 function love.mousereleased(x, y, touch)
   -- Always stop right drag if any modal is visible (prevents sticky drag after modal closes)
-  local confirmation = require("utils.confirmation")
+  local confirmation = require("src.ui.confirmation")
   local welcome = getWelcome()
   if confirmation.visible or welcome.visible or (menuBar.modal and menuBar.modal.visible) then
     stopRightDrag()
@@ -116,7 +138,7 @@ end
 
 function love.mousemoved(x, y, dx, dy, istouch)
   -- Only move camera if right mouse is dragging and in grid area, and no modal is active
-  local confirmation = require("utils.confirmation")
+  local confirmation = require("src.ui.confirmation")
   local welcome = getWelcome()
   if isRightDragging and mouse.zone == "grid" and not (welcome.visible or (menuBar.modal and menuBar.modal.visible) or confirmation.visible) then
     camera:move(-dx * camera.scaleX, -dy * camera.scaleY)
@@ -136,7 +158,6 @@ function love.textinput(t)
   end
   input.textinput(t)
 end
-
 
 function love.keypressed(key)
   -- Block all background input if any modal is visible
@@ -178,7 +199,6 @@ function love.resize(w, h)
   window.grid.height = window.height-hud.topBar.height-menuBar.height
   menuBar.updateModalPosition()
 end
-
 
 function love.update(dt)
   if isLoading then
@@ -248,7 +268,7 @@ function love.draw()
   -- Always draw menu bar
   menuBar.draw()
   -- Draw confirmation modal above everything if visible
-  local confirmation = require("utils.confirmation")
+  local confirmation = require("src.ui.confirmation")
   if confirmation.visible then
     confirmation.draw()
   end

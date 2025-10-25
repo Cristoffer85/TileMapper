@@ -32,19 +32,20 @@ function confirmation.draw()
   love.graphics.rectangle("fill", confirmation.x, confirmation.y, confirmation.width, confirmation.height)
   love.graphics.setColor(0.8, 0.8, 0.8)
   love.graphics.rectangle("line", confirmation.x, confirmation.y, confirmation.width, confirmation.height)
-  -- Message (split into two lines, centered)
+  -- Message (support multi-line, centered)
   love.graphics.setColor(1, 1, 1)
   love.graphics.setFont(Font)
-  local line1 = "Are you sure you want to start a new map?"
-  local line2 = "All unsaved/unexported data will be lost!"
-  local line1W = Font:getWidth(line1)
-  local line2W = Font:getWidth(line2)
-  local y1 = confirmation.y + 36
-  local y2 = y1 + Font:getHeight() + 10
-  love.graphics.print(line1, confirmation.x + (confirmation.width - line1W) / 2, y1)
-  -- Blank row
-  -- Second line
-  love.graphics.print(line2, confirmation.x + (confirmation.width - line2W) / 2, y2 + Font:getHeight())
+  local lines = {}
+  for line in string.gmatch(confirmation.message or "", "[^\n]+") do
+    table.insert(lines, line)
+  end
+  local totalHeight = #lines * Font:getHeight() + (#lines-1)*10
+  local startY = confirmation.y + 36
+  for i, line in ipairs(lines) do
+    local lineW = Font:getWidth(line)
+    local y = startY + (i-1)*(Font:getHeight()+10)
+    love.graphics.print(line, confirmation.x + (confirmation.width - lineW) / 2, y)
+  end
   -- Yes/No buttons
   local btnW, btnH = 100, 36
   local spacing = 40

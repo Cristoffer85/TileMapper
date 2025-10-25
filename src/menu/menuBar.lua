@@ -115,14 +115,14 @@ menuBar.items = {
     items = {
       {label = "New Map", action = function()
         local welcome = package.loaded["menu.welcome.welcome"]
-        local confirmation = require("utils.confirmation")
+        local confirmation = require("src.ui.confirmation")
         local function doShowNewMap()
           menuBar.showModal("newMap")
         end
         -- Only show confirmation if a map has already been created after welcome flow
         if menuBar.mapSession.hasCreatedMap then
           confirmation.show(
-            "Are you sure you want to start a new map?        \n All unsaved/unexported data will be lost!",
+            "Are you sure you want to start a new map?        \n All non-exported data will be lost!",
             doShowNewMap,
             function() end
           )
@@ -324,7 +324,6 @@ function menuBar.update()
     end
   end
 end
-
 
 function menuBar.showAbout()
   about.show()
