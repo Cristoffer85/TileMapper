@@ -4,7 +4,7 @@ local pendingQuit = false
 function love.quit()
   -- Only intercept if there are unsaved changes
   if grid and grid.isDirty and not pendingQuit then
-    local confirmation = require("src.ui.confirmation")
+    local confirmation = require("ui.confirmation")
     -- If confirmation is already visible, don't show again
     if not confirmation.visible then
       confirmation.show(
@@ -99,7 +99,7 @@ function love.mousepressed(x, y, touch)
     stopRightDrag()
   end
   -- Block all background input if any modal is visible
-  local confirmation = require("src.ui.confirmation")
+  local confirmation = require("ui.confirmation")
   if confirmation.visible then
     confirmation.mousepressed(x, y, touch)
     return
@@ -127,7 +127,7 @@ end
 
 function love.mousereleased(x, y, touch)
   -- Always stop right drag if any modal is visible (prevents sticky drag after modal closes)
-  local confirmation = require("src.ui.confirmation")
+  local confirmation = require("ui.confirmation")
   local welcome = getWelcome()
   if confirmation.visible or welcome.visible or (menuBar.modal and menuBar.modal.visible) then
     stopRightDrag()
@@ -138,7 +138,7 @@ end
 
 function love.mousemoved(x, y, dx, dy, istouch)
   -- Only move camera if right mouse is dragging and in grid area, and no modal is active
-  local confirmation = require("src.ui.confirmation")
+  local confirmation = require("ui.confirmation")
   local welcome = getWelcome()
   if isRightDragging and mouse.zone == "grid" and not (welcome.visible or (menuBar.modal and menuBar.modal.visible) or confirmation.visible) then
     camera:move(-dx * camera.scaleX, -dy * camera.scaleY)
@@ -235,6 +235,7 @@ function love.update(dt)
 end
 
 function love.draw()
+  require("menu.export.exportDebugDraw")()
   if isLoading then
     local w, h = love.graphics.getDimensions()
     local frameW, frameH = 64, 64
@@ -268,7 +269,7 @@ function love.draw()
   -- Always draw menu bar
   menuBar.draw()
   -- Draw confirmation modal above everything if visible
-  local confirmation = require("src.ui.confirmation")
+  local confirmation = require("ui.confirmation")
   if confirmation.visible then
     confirmation.draw()
   end

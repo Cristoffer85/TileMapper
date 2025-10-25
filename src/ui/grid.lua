@@ -5,7 +5,7 @@ grid.height = 50
 grid.tileWidth = 32
 grid.tileHeight = 32
 grid.tileTexture = {}
-grid.tileSetPath = "tileset/tileset.png"
+grid.tileSetPath = "assets/tileset/tileset.png"
 
 -- Multi-tileset support
 grid.tilesets = {}
@@ -127,29 +127,14 @@ function grid.loadMultipleTilesets()
 end
 
 function grid.loadTilesetImage(tilesetPath)
-  local path
-  -- Check if it's an absolute path (external file)
-  if tilesetPath:match("^[A-Za-z]:") or tilesetPath:match("^/") then
-    path = tilesetPath
-  else
-    path = love.filesystem.getSourceBaseDirectory().."/"..tilesetPath
-  end
-  
-  local file = io.open(path, "rb")
-  if file == nil then
-    love.window.showMessageBox(
-      "Tileset not found",
-      "Could not load tileset: " .. path,
-      "error"
-    )
+  print("[DEBUG] Loading tileset: " .. tostring(tilesetPath))
+  if not love.filesystem.getInfo(tilesetPath) then
+    print("[ERROR] Tileset not found: " .. tostring(tilesetPath))
     return nil
   end
-  
-  local data = file:read("*all")
-  file:close()
-  local fileData = love.filesystem.newFileData(data, "tileset")
-  local imgData = love.image.newImageData(fileData)
-  return love.graphics.newImage(imgData)
+  local img = love.graphics.newImage(tilesetPath)
+  print("[DEBUG] Loaded tileset: " .. tostring(tilesetPath))
+  return img
 end
 
 function grid.mapLoad()
@@ -178,11 +163,19 @@ function grid.draw()
             -- Multi-tileset mode: use tileset-specific image
             local tileData = grid.tileTexture[gridPos]
             if type(tileData) == "table" then
-              love.graphics.draw(tileData.image, tileData.quad, x, y)
+              if tileData.quad == nil then
+                print("[ERROR] Nil quad for tile index " .. tostring(gridPos) .. " in multi-tileset mode.")
+              else
+                love.graphics.draw(tileData.image, tileData.quad, x, y)
+              end
             end
           else
             -- Single tileset mode: use original method
-            love.graphics.draw(grid.tileSet, grid.tileTexture[gridPos], x, y)
+            if grid.tileTexture[gridPos] == nil then
+              print("[ERROR] Nil quad for tile index " .. tostring(gridPos) .. " in single-tileset mode.")
+            else
+              love.graphics.draw(grid.tileSet, grid.tileTexture[gridPos], x, y)
+            end
           end
         end
       end
@@ -207,37 +200,16 @@ function grid.draw()
 end
 
 function grid.autoDetectTilesets()
-  local baseDirectory = love.filesystem.getSourceBaseDirectory()
-  local tilesetDir = baseDirectory .. "/tileset"
-  
-  -- Get list of PNG files in tileset directory
   local tilesetFiles = {}
-  
-  -- Fast directory scan - limit to first 20 files to prevent slow startup
-  if love.system.getOS() == "Windows" then
-    local handle = io.popen('dir "' .. tilesetDir .. '\\*.png" /B /A:-D 2>nul')
-    if handle then
-      local count = 0
-      for file in handle:lines() do
-        if file and file:lower():match("%.png$") then
-          table.insert(tilesetFiles, "tileset/" .. file)
-          count = count + 1
-          if count >= 20 then break end -- Limit for fast startup
-        end
-      end
-      handle:close()
-    end
-  else
-    -- For Linux/Mac - use ls command with head to limit results
-    local handle = io.popen('ls "' .. tilesetDir .. '"/*.png 2>/dev/null | head -20')
-    if handle then
-      for file in handle:lines() do
-        local filename = file:match("([^/]+)$")
-        if filename and filename:lower():match("%.png$") then
-          table.insert(tilesetFiles, "tileset/" .. filename)
-        end
-      end
-      handle:close()
+  local items = love.filesystem.getDirectoryItems("assets/tileset")
+  local count = 0
+  print("[DEBUG] Found tileset files:")
+  for _, file in ipairs(items) do
+    if file:lower():match("%.png$") then
+      print("[DEBUG]  " .. file)
+      table.insert(tilesetFiles, "assets/tileset/" .. file)
+      count = count + 1
+      if count >= 20 then break end -- Limit for fast startup
     end
   end
   
@@ -267,7 +239,7 @@ function grid.addSingleTileset(tilesetPath)
   end
   
   -- Check if tileset already exists
-  local relativePath = "tileset/" .. tilesetPath:match("([^/\\]+)$")
+  local relativePath = "src/assets/tileset/" .. tilesetPath:match("([^/\\]+)$")
   for _, existingPath in ipairs(grid.tilesetPaths) do
     if existingPath == relativePath then
       return -- Already exists, no need to add

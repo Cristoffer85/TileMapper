@@ -48,7 +48,7 @@ function mapValidator.validateTilesetExists(tilesetPath)
     -- Local file in tileset folder
     local filename = tilesetPath:match("([^/\\]+)$") or tilesetPath
     local baseDirectory = love.filesystem.getSourceBaseDirectory()
-    local fullPath = baseDirectory .. "/tileset/" .. filename
+  local fullPath = baseDirectory .. "/assets/tileset/" .. filename
     
     local f = io.open(fullPath, "rb")
     if f then
@@ -102,7 +102,7 @@ function mapValidator.initializeMap(data)
       if data.isExternalFile and (data.tilesetPath:match("^[A-Za-z]:") or data.tilesetPath:match("^/")) then
         tilesetPath = data.tilesetPath
       else
-        tilesetPath = "tileset/" .. data.tilesetPath
+  tilesetPath = "assets/tileset/" .. data.tilesetPath
       end
       _G.grid.tileSetPath = tilesetPath
     else
@@ -197,7 +197,7 @@ end
 
 function mapValidator.copyExternalTilesets(data)
   local baseDirectory = love.filesystem.getSourceBaseDirectory()
-  local tilesetDir = baseDirectory .. "/tileset/"
+  local tilesetDir = baseDirectory .. "/assets/tileset/"
   
   -- Copy primary tileset if it's external
   if data.isExternalFile and data.tilesetPath then

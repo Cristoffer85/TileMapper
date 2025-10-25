@@ -98,15 +98,9 @@ end
 local function exportFileDialog(extension, exportFunc)
     local defaultName = (grid and grid.mapName and #grid.mapName > 0) and grid.mapName or "map"
     local filename = browse.saveFile(extension, "Select Export Location", defaultName .. extension)
-  if filename then
-    local file = io.open(filename, "w+")
-    if file then
-      exportFunc(file)
-      io.close(file)
-    else
-      love.window.showMessageBox("Export Error", "Could not open file: "..filename, "error")
+    if filename then
+        exportFunc(filename)
     end
-  end
 end
 
 menuBar.items = {
@@ -115,7 +109,7 @@ menuBar.items = {
     items = {
       {label = "New Map", action = function()
         local welcome = package.loaded["menu.welcome.welcome"]
-        local confirmation = require("src.ui.confirmation")
+        local confirmation = require("ui.confirmation")
         local function doShowNewMap()
           menuBar.showModal("newMap")
         end

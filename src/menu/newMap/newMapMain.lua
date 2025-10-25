@@ -1,7 +1,7 @@
 -- New map dialog controller
 local newMap = {}
 local input = require("utils.input")
-local mapValidator = require("src.menu.newMap.projectValidator")
+local mapValidator = require("menu.newMap.projectValidator")
 
 -- Use centralized modalFields for new map modal
 input.modalFields.fields = {"mapName", "mapWidth", "mapHeight", "tileSize"}

@@ -2,7 +2,7 @@
 
 -- Top panel main coordinator
 local topPanel = {}
-local button = require("src.assets.button")
+local button = require("assets.button")
 
 topPanel.width = window.width
 topPanel.height = 40

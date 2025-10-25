@@ -2,6 +2,7 @@
 -- Only windows is currently supported at this time
 
 local browse = {}
+local grid = require("ui.grid")
 
 -- Windows File Dialog via FFI = Foreign Function Interface.
 local ffi = require("ffi")
@@ -103,7 +104,7 @@ function browse.openTilesetImage()
   end
   local filename = filePath:match("([^\\]+)$") or filePath:match("([^/]+)$") or filePath
   local baseDirectory = love.filesystem.getSourceBaseDirectory()
-  local targetDir = baseDirectory .. "/tileset/"
+  local targetDir = baseDirectory .. "/src/assets/tileset/"
   local targetPath = targetDir .. filename
   -- Read source file
   local sourceFile = io.open(filePath, "rb")
@@ -122,7 +123,7 @@ function browse.openTilesetImage()
   targetFile:write(data)
   targetFile:close()
   -- Add tileset to grid
-  if grid.addTileset(filename) then
+  if grid.addSingleTileset(filename) then
     local tilesetScroll = require("panel.rightpanel.tilesetScroll")
     tilesetScroll.resetScroll()
     if tool and tool.camera then

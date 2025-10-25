@@ -162,7 +162,7 @@ function welcome.mousepressed(x, y, button)
     local fields = input.modalFields
     -- Convert all fields to string before validation
     for _, k in ipairs(fields.fields) do fields[k] = tostring(fields[k] or "") end
-    local mapValidator = require("src.menu.newMap.projectValidator")
+    local mapValidator = require("menu.newMap.projectValidator")
     local success, errors = mapValidator.createMap(fields)
     if not success then
       local errorMsg = mapValidator.formatErrors(errors)

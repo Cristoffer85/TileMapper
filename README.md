@@ -59,11 +59,11 @@ Export maps to txt, json or lua format.
 
 | Keys 	| Description |
 |---	|---
-| <kbd>D</kbd>	|	Draw	|
-| <kbd>E</kbd>	|	Erase	|
-| <kbd>F</kbd>	|	Fill	|
+| <kbd>D</kbd>		|	Draw	|
+| <kbd>E</kbd>		|	Erase	|
+| <kbd>F</kbd>		|	Fill	|
 | <kbd>Alt</kbd>	|	Tile picker	|
-| Mouse Right	|	Tile picker	|
+| Mouse Right		|	Tile picker	|
 | <kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd>	|	Move	|
 | <kbd>Spacebar</kbd> + Mouse Left	|	Move	|
 | Mouse Wheel	| Zoom	|
