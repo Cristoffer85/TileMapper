@@ -1,3 +1,4 @@
+local leftPanel = require("panel.leftpanel.leftPanel")
 -- Tileset click handling functionality
 local tilesetClick = {}
 local tilesetDisplay = require("panel.rightpanel.tilesetDisplay")
@@ -10,7 +11,8 @@ function tilesetClick.handleTilesetClick(x, y)
 
   -- First check section headers
   local pX = 10
-  local rightBarWidth = 200  -- rightPanel.width
+  local rightPanel = require("panel.rightpanel.rightPanel")
+  local rightBarWidth = rightPanel.width  -- use actual rightPanel.width
   local width = rightBarWidth - pX * 2
   local rightBarX = window.width - rightBarWidth
 
@@ -40,8 +42,8 @@ function tilesetClick.handleTilesetClick(x, y)
             mouse.fillColor = tileArea.tileId
 
             -- Switch to pen tool for painting
-            if tool.current ~= "fill" then
-              tool.current = "pen"
+            if leftPanel.tool.current ~= "fill" then
+              leftPanel.tool.current = "pen"
             end
 
             return true

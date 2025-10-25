@@ -6,7 +6,9 @@ local tilesetDisplay = require("panel.rightpanel.tilesetDisplay")
 local tilesetScroll = require("panel.rightpanel.tilesetScroll")
 local tilesetClick = require("panel.rightpanel.tilesetClick")
 
-rightPanel.width = 200
+-- Global for right panel width to avoid circular require
+RIGHT_PANEL_WIDTH = 240
+rightPanel.width = 240
 rightPanel.height = window.height
 
 function rightPanel.draw()
@@ -17,10 +19,10 @@ function rightPanel.draw()
   love.graphics.rectangle("fill", window.width-rightPanel.width, menuBar.height + 40, 1, rightPanel.height - menuBar.height - 40)
   
   -- Draw browse button at top of right panel
-  local rightBarX = window.width - 200
+  local rightBarX = window.width - rightPanel.width
   local buttonX = rightBarX + 10
   local buttonY = menuBar.height + 40 + 10
-  local buttonWidth = 200 - 20
+  local buttonWidth = rightPanel.width - 20
   local buttonHeight = 30
   love.graphics.setColor(0.3, 0.5, 0.7)
   love.graphics.rectangle("fill", buttonX, buttonY, buttonWidth, buttonHeight)

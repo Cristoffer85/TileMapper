@@ -10,8 +10,8 @@ function tilesetDisplay.drawTile(pX, pY, spacing, pTileWidth)
   -- Only support multi-tileset mode
   if not grid.tilesets or #grid.tilesets == 0 then
     love.graphics.setColor(0.6, 0.6, 0.6)
-    love.graphics.print("No tilesets available", window.width - 200 + 10, pY)
-    love.graphics.print("Use 'Browse Tileset' to add one", window.width - 200 + 10, pY + 20)
+    love.graphics.print("No tilesets available", window.width - RIGHT_PANEL_WIDTH + 10, pY)
+    love.graphics.print("Use 'Browse Tileset' to add one", window.width - RIGHT_PANEL_WIDTH + 10, pY + 20)
     return
   end
   tilesetDisplay.drawMultiTilesets(pX, pY, spacing, pTileWidth)
@@ -23,7 +23,7 @@ function tilesetDisplay.drawSingleTileset(pX, pY, spacing, pTileWidth)
     return
   end
   
-  local rightBarWidth = 200  -- rightPanel.width
+  local rightBarWidth = RIGHT_PANEL_WIDTH
   local width = rightBarWidth - pX * 2
   local rapport = pTileWidth / grid.tileWidth
   local nbColumn = math.floor(width / (pTileWidth + spacing))
@@ -71,7 +71,7 @@ function tilesetDisplay.drawMultiTilesets(pX, pY, spacing, pTileWidth)
   tilesetDisplay.tilesetClickAreas = {}
   tilesetDisplay.sectionPositions = {}
   
-  local rightBarWidth = 200  -- rightPanel.width
+  local rightBarWidth = RIGHT_PANEL_WIDTH
   local width = rightBarWidth - pX * 2
   local rapport = pTileWidth / grid.tileWidth
   local nbColumn = math.floor(width / (pTileWidth + spacing))
