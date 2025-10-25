@@ -15,7 +15,6 @@ Font = love.graphics.newFont(16)
 data = require("panel.rightpanel.tilesetLoader")
 camera = require("ui.camera")
 action = require("utils.action")
-tool = require("panel.leftpanel.tool")
 mouse = require("utils.mouse")
 grid = require("ui.grid")
 hud = require("panel.panelMain")
@@ -23,6 +22,7 @@ export = require("menu.export.exportMain")
 import = require("menu.import.importMain")
 input = require("utils.input")
 menuBar = require("menu.menuBar")
+leftPanel = require("panel.leftpanel.leftPanel")
 
 local welcome = require("menu.welcome.welcome")
 function love.load()
@@ -50,7 +50,6 @@ end
 
 -- State for right mouse drag
 local isRightDragging = false
-local lastDragX, lastDragY = 0, 0
 
 -- Utility to force stop right drag (e.g. after modal closes)
 local function stopRightDrag()
@@ -79,7 +78,6 @@ function love.mousepressed(x, y, touch)
   -- Right mouse button drag for camera movement (only in grid area)
   if touch == mouseTouch2 and mouse.zone == "grid" then
     isRightDragging = true
-    lastDragX, lastDragY = x, y
     return
   end
   -- MenuBar input
@@ -182,7 +180,7 @@ function love.update(dt)
 
   mouse.update()
   action.update(dt)
-  tool.update()
+  leftPanel.tool.update()
   menuBar.update()
   require("utils.input").update(dt)
 end
@@ -199,7 +197,7 @@ function love.draw()
   hud.rightBar.draw()
   hud.topBar.draw()
 
-  hud.drawButtonLeftBar(5, 50 + menuBar.height + hud.topBar.height, 10, 30, tool.list)
+  hud.drawButtonLeftBar(5, 50 + menuBar.height + hud.topBar.height, 10, 30, leftPanel.tool.list)
   hud.drawButtonLeftBar(5, 400 + menuBar.height + hud.topBar.height, 10, 30, action.list)
   hud.drawButtonLeftBar(5, 650 + menuBar.height + hud.topBar.height, 10, 30, action.importantList)
   hud.drawTile(10, 70 + menuBar.height + hud.topBar.height, 1, 32)
