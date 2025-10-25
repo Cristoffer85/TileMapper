@@ -47,7 +47,7 @@ function action.mousepressed(touch)
     local y = pY+(i-1)*spacing+(i-1)*height
     if mouse.collide(pX, y, height, height) then
       if action.list[i] == "grid" then
-        if action.grid.state then action.grid.state = false end
+        action.grid.state = not action.grid.state
       elseif action.list[i] == "resetPos" then
         action.resetPos.f()
       end
