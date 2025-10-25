@@ -34,14 +34,6 @@ function button.load()
   button.list["resetPos"] = love.graphics.newImage("assets/button/actionButtonResetPos.png")
   button.list["resetMap"] = love.graphics.newImage("assets/button/actionButtonResetMap.png")
 
-  --Import/Export
-  button.list["exportLua"] = love.graphics.newImage("assets/button/actionButtonExportLua.png")
-  button.list["exportTxt"] = love.graphics.newImage("assets/button/actionButtonExportTxt.png")
-  button.list["exportJson"] = love.graphics.newImage("assets/button/actionButtonExportJson.png")
-  button.list["importLua"] = love.graphics.newImage("assets/button/actionButtonImportLua.png")
-  button.list["importTxt"] = love.graphics.newImage("assets/button/actionButtonImportTxt.png")
-  button.list["importJson"] = love.graphics.newImage("assets/button/actionButtonImportJson.png")
-
   button._loaded = true
 end
 
