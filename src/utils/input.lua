@@ -157,17 +157,21 @@ function input.mousepressed(touch)
   local noFocus = true
   for i = 1, #input.list do
     local curInput = input[input.list[i]]
-    if mouse.collide(curInput.x, curInput.y, curInput.width, curInput.height) then
-      curInput.focus = true
-      noFocus = false
-    else
-      curInput.focus = false
+    if curInput then
+      if mouse.collide(curInput.x, curInput.y, curInput.width, curInput.height) then
+        curInput.focus = true
+        noFocus = false
+      else
+        curInput.focus = false
+      end
     end
   end
   if noFocus then
     for i = 1, #input.list do
       local curInput = input[input.list[i]]
-      curInput.value = grid[curInput.toUpdate]
+      if curInput then
+        curInput.value = grid[curInput.toUpdate]
+      end
     end
   end
 end
@@ -237,23 +241,25 @@ function input.draw()
   if modalActive then return end
   for i = 1, #input.list do
     local curInput = input[input.list[i]]
-    local x = curInput.x
-    local y = curInput.y
-    if curInput.focus then
-      love.graphics.draw(hud.button.bgInput.on, x, y)
-    else
-      if mouse.collide(x, y, curInput.width, curInput.height) then
-        if love.mouse.isDown(mouseTouch1) then
-          love.graphics.draw(hud.button.bgInput.on, x, y)
-        else
-          love.graphics.draw(hud.button.bgInput.over, x, y)
-        end
+    if curInput then
+      local x = curInput.x
+      local y = curInput.y
+      if curInput.focus then
+        love.graphics.draw(hud.button.bgInput.on, x, y)
       else
-        love.graphics.draw(hud.button.bgInput.off, x, y)
+        if mouse.collide(x, y, curInput.width, curInput.height) then
+          if love.mouse.isDown(mouseTouch1) then
+            love.graphics.draw(hud.button.bgInput.on, x, y)
+          else
+            love.graphics.draw(hud.button.bgInput.over, x, y)
+          end
+        else
+          love.graphics.draw(hud.button.bgInput.off, x, y)
+        end
       end
+      love.graphics.setFont(Font)
+      love.graphics.print(curInput.value, curInput.x + 16, curInput.y + 1)
     end
-    love.graphics.setFont(Font)
-    love.graphics.print(curInput.value, curInput.x + 16, curInput.y + 1)
   end
 end
 
