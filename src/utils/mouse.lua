@@ -1,7 +1,7 @@
 local mouse = {}
 local function modalActive()
-  local welcome = package.loaded["menu.welcome.welcome"]
-  local menuBar = package.loaded["menu.menuBar"]
+local welcome = package.loaded["menu.welcome.welcome"]
+local menuBar = package.loaded["menu.menuBar"]
   return (welcome and welcome.visible) or (menuBar and menuBar.modal and menuBar.modal.visible)
 end
 mouse.currentColor = 1
