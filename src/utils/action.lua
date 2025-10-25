@@ -92,32 +92,24 @@ end
 
 function action.zoom.wheelmoved(y)
   local zoomSize = 0.14
-  
+
   -- Get mouse position in world coordinates before zoom
   local mouseWorldX, mouseWorldY = camera:mousePosition()
-  
-  -- Get mouse position in screen coordinates
-  local mouseScreenX = love.mouse.getX()
-  local mouseScreenY = love.mouse.getY()
-  
-  -- Store old scale
-  local oldScaleX = camera.scaleX
-  local oldScaleY = camera.scaleY
-  
+
   -- Apply zoom
   if y < 0 then
     camera:scale(1 + zoomSize, 1 + zoomSize)
   elseif y > 0 then
     camera:scale(1 - zoomSize, 1 - zoomSize)
   end
-  
+
   -- Calculate how much the mouse position changed in world coordinates after zoom
   local newMouseWorldX, newMouseWorldY = camera:mousePosition()
-  
+
   -- Adjust camera position to keep the mouse world position the same
   local deltaX = mouseWorldX - newMouseWorldX
   local deltaY = mouseWorldY - newMouseWorldY
-  
+
   camera:move(deltaX, deltaY)
 end
 
