@@ -9,7 +9,7 @@ mouseTouch2 = 2
 
 window = {}
 window.width = 1200
-window.height = 800
+window.height = 760
 Font = love.graphics.newFont(16)
 
 data = require("panel.rightpanel.tilesetLoader")

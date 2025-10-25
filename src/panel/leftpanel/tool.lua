@@ -1,16 +1,14 @@
 local tool = {}
-tool.last = "camera"
-tool.current = "camera"
-tool.list     = {"pen", "erase", "fill", "tilePicker", "camera"}
-tool.shortcut = {"d",   "e",     "f",    "lalt",       "space"}
+tool.last = "pen"
+tool.current = "pen"
+tool.list     = {"pen", "erase", "fill", "tilePicker"}
+tool.shortcut = {"d",   "e",     "f",    "lalt"}
 tool.select = {}
 tool.pen = {}
 tool.erase = {}
 tool.fill = {}
 tool.tileSwapper = {}
 tool.tilePicker = {}
-tool.camera = {}
-tool.camera.shortcutWasDown = false
 
 local function isMapPosValid()
   return grid.map[mouse.l] ~= nil and grid.map[mouse.l][mouse.c] ~= nil
@@ -43,7 +41,7 @@ function tool.update()
       tool.current = tool.list[i]
     end
   end
-  
+
   if love.mouse.isDown(mouseTouch2) then -- Color picker
     local value = grid.map[mouse.l][mouse.c]
     if isMapPosValid() then
@@ -59,7 +57,7 @@ function tool.update()
       end
     end
   end
-  
+
   if mouse.zone == "grid" then
     if tool.current and tool[tool.current] and tool[tool.current].f then
       tool[tool.current].f()
@@ -172,33 +170,6 @@ function tool.tilePicker.f()
   end
 end
 
-function tool.camera.f()
-  if love.mouse.isDown(mouseTouch1) then
-    if tool.camera.state == false then
-      tool.camera.x, tool.camera.y = camera:mousePosition()
-      tool.camera.scaleX = camera.scaleX
-      tool.camera.scaleY = camera.scaleY
-      tool.camera.state = true
-    end
-    if tool.camera.scaleX ~= camera.scaleX or tool.camera.scaleY ~= camera.scaleY then
-      tool.camera.x, tool.camera.y = camera:mousePosition()
-      tool.camera.scaleX = camera.scaleX
-      tool.camera.scaleY = camera.scaleY
-    elseif tool.camera.state then
-      if love.mouse.isDown(mouseTouch1) then
-        mx, my = camera:mousePosition()
-        camera:move(tool.camera.x-mx, tool.camera.y-my)
-      end
-    end
-  else
-    tool.camera.state = false
-  end
-  if love.keyboard.isDown(tool.shortcut[5]) then
-    tool.camera.shortcutWasDown = true
-  elseif tool.camera.shortcutWasDown then
-    tool.current = tool.last
-    tool.camera.shortcutWasDown = false
-  end
-end
+
 
 return tool
