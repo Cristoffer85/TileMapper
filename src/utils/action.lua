@@ -71,22 +71,13 @@ end
 
 function action.resetPos.f()
   camera:setScale(1, 1)
-  local x, y
-  if not grid or not hud or not hud.leftBar or not window.grid then
+  if grid and camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight then
+    local centerX = (grid.width * grid.tileWidth) / 2
+    local centerY = (grid.height * grid.tileHeight) / 2
+    camera:setPosition(centerX - window.width/2, centerY - window.height/2)
+  else
     camera:setPosition(0, 0)
-    return
   end
-  if grid.width*grid.tileWidth <= window.grid.width then
-    x = (window.grid.width-grid.width*grid.tileWidth)/2 + (hud.leftBar.width or 0)
-  else
-    x = hud.leftBar.width or 0
-  end
-  if grid.height*grid.tileHeight <= window.grid.height then
-    y = -((window.grid.height-grid.height*grid.tileHeight)/2 + (hud.topBar.height or 0))
-  else
-    y = grid.height*grid.tileHeight - window.height
-  end
-  camera:setPosition(-x, y)
 end
 
 function action.zoom.f()
