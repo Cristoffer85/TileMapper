@@ -51,6 +51,11 @@ function love.keyreleased(key)
   require("utils.input").modalKeyreleased(key)
 end
 
+
+-- State for right mouse drag
+local isRightDragging = false
+local lastDragX, lastDragY = 0, 0
+
 function love.mousepressed(x, y, touch)
   -- Block all background input if any modal is visible
   local confirmation = require("utils.confirmation")
@@ -66,11 +71,31 @@ function love.mousepressed(x, y, touch)
     menuBar.modalMousepressed(x, y, touch)
     return
   end
+  -- Right mouse button drag for camera movement (only in grid area)
+  if touch == mouseTouch2 and mouse.zone == "grid" then
+    isRightDragging = true
+    lastDragX, lastDragY = x, y
+    return
+  end
   -- MenuBar input
   if menuBar.mousepressed(x, y, touch) then return end
   if hud.mousepressed(x, y, touch) then return end
   action.mousepressed(touch)
   input.mousepressed(touch)
+end
+
+function love.mousereleased(x, y, touch)
+  if touch == mouseTouch2 then
+    isRightDragging = false
+  end
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+  -- Only move camera if right mouse is dragging and in grid area, and no modal is active
+  local confirmation = require("utils.confirmation")
+  if isRightDragging and mouse.zone == "grid" and not (welcome.visible or (menuBar.modal and menuBar.modal.visible) or confirmation.visible) then
+    camera:move(-dx * camera.scaleX, -dy * camera.scaleY)
+  end
 end
 
 function love.textinput(t)
