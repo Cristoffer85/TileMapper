@@ -126,6 +126,7 @@ function newMap.create(menu)
   end
   if grid then
     grid.mapName = fields.mapName
+    grid.isDirty = true -- Mark as dirty on new map
   end
   if grid and camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight then
     local centerX = (grid.width * grid.tileWidth) / 2

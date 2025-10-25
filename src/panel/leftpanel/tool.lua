@@ -70,7 +70,10 @@ end
 function tool.pen.f()
   if love.mouse.isDown(mouseTouch1) then
     if isMapPosValid() then
-      grid.map[mouse.l][mouse.c] = mouse.currentColor
+      if grid.map[mouse.l][mouse.c] ~= mouse.currentColor then
+        grid.map[mouse.l][mouse.c] = mouse.currentColor
+        grid.isDirty = true
+      end
     end
   end
   mouse.fillColor = mouse.currentColor
@@ -79,17 +82,21 @@ end
 function tool.erase.f()
   if love.mouse.isDown(mouseTouch1) then
     if isMapPosValid() then
-      grid.map[mouse.l][mouse.c] = 0
+      if grid.map[mouse.l][mouse.c] ~= 0 then
+        grid.map[mouse.l][mouse.c] = 0
+        grid.isDirty = true
+      end
     end
   end
 end
 
 function tool.fill.f()
+  local changed = false
   if love.mouse.isDown(mouseTouch1) then
     if isMapPosValid() and grid.map[mouse.l][mouse.c] ~= mouse.fillColor then
       local remplacer = grid.map[mouse.l][mouse.c]
       grid.map[mouse.l][mouse.c] = -1
-      
+      changed = true
       local i = 1
       local stop = false
       while not stop do
@@ -104,33 +111,35 @@ function tool.fill.f()
                 if grid.map[l][c-1] == remplacer then
                   grid.map[l][c-1] = -1
                   stop = false
+                  changed = true
                 end
               end
               if grid.map[l] ~= nil and grid.map[l][c+1] ~= nil then
                 if grid.map[l][c+1] == remplacer then
                   grid.map[l][c+1] = -1
                   stop = false
+                  changed = true
                 end
               end
               if grid.map[l-1] ~= nil and grid.map[l-1][c] ~= nil then
                 if grid.map[l-1][c] == remplacer then
                   grid.map[l-1][c] = -1
                   stop = false
+                  changed = true
                 end
               end
               if grid.map[l+1] ~= nil and grid.map[l+1][c] ~= nil then
                 if grid.map[l+1][c] == remplacer then
                   grid.map[l+1][c] = -1
                   stop = false
+                  changed = true
                 end
               end
             end
           end
         end
       end
-      
     end
-    
     local l
     for l = 1, grid.height do
       local c
@@ -141,7 +150,7 @@ function tool.fill.f()
         end
       end
     end
-    
+    if changed then grid.isDirty = true end
   end
   if mouse.fillColor ~= 0 then
     mouse.currentColor = mouse.fillColor

@@ -171,11 +171,17 @@ function welcome.mousepressed(x, y, button)
     end
     if grid then
       grid.mapName = fields.mapName
+      grid.isDirty = true -- Mark as dirty on new map
     end
     if grid and camera and grid.width and grid.height and grid.tileWidth and grid.tileHeight then
       local centerX = (grid.width * grid.tileWidth) / 2
       local centerY = (grid.height * grid.tileHeight) / 2
       camera:setPosition(centerX - window.width/2, centerY - window.height/2)
+    end
+    -- Clear undo stack so ctrl+z cannot revert to old map
+    local action = require("utils.action")
+    if action and action.ctrlZ and action.ctrlZ.save then
+      action.ctrlZ.save = {}
     end
     local menuBar = require("menu.menuBar")
     if menuBar and menuBar.mapSession then

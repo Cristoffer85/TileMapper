@@ -6,6 +6,7 @@ function export.txt(file)
 	else
 		export.txtSingleTileset(file)
 	end
+	grid.isDirty = false
 end
 
 function export.txtSingleTileset(file)
@@ -73,6 +74,7 @@ function export.lua(file)
 		end
 	end
 	file:write("}\nreturn map")
+	grid.isDirty = false
 end
 
 function export.json(file)
@@ -99,6 +101,7 @@ function export.json(file)
 		end
 	end
 	file:write("]\n}")
+	grid.isDirty = false
 end
 
 return export

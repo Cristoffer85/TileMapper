@@ -32,9 +32,12 @@ function topPanel.draw()
       love.graphics.print(widthLabel, 80, 10 + menuBar.height)
       love.graphics.print(heightLabel, 230, 10 + menuBar.height)
     end
-    -- Draw map name centered in top panel
+    -- Draw map name centered in top panel, add * if unsaved
     if grid and grid.mapName then
       local mapName = grid.mapName
+      if grid.isDirty then
+        mapName = mapName .. "*"
+      end
       local textWidth = Font:getWidth(mapName)
       local textHeight = Font:getHeight()
       local x = (topPanel.width - textWidth) / 2
