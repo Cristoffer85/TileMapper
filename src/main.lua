@@ -235,7 +235,6 @@ function love.update(dt)
 end
 
 function love.draw()
-  require("menu.export.exportDebugDraw")()
   if isLoading then
     local w, h = love.graphics.getDimensions()
     local frameW, frameH = 64, 64
