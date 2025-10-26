@@ -144,20 +144,12 @@ function leftPanel.tool.update()
       leftPanel.tool.current = leftPanel.tool.list[i]
     end
   end
-  -- Color picker (right mouse)
-  if love.mouse.isDown(mouseTouch2) then
+  -- Color picker (right mouse) ONLY if tilePicker tool is active
+  if leftPanel.tool.current == "tilePicker" and love.mouse.isDown(mouseTouch2) then
     local value = grid.map[mouse.l][mouse.c]
     if isMapPosValid() then
-      if leftPanel.tool.current ~= "fill" then
-        if value == 0 then
-          leftPanel.tool.current = "erase"
-        else
-          mouse.currentColor = value
-          leftPanel.tool.current = "pen"
-        end
-      else
-        mouse.fillColor = value
-      end
+      mouse.currentColor = value
+      mouse.fillColor = value
     end
   end
   -- Tool action
