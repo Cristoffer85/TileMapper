@@ -27,6 +27,8 @@ local function getWelcome()
   return require("menu.welcome.welcome")
 end
 
+
+local importTilesizeSetter = require("ui.importTilesizeSetter")
 local didStartupCamera = false
 io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
@@ -94,6 +96,14 @@ local function stopRightDrag()
 end
 
 function love.mousepressed(x, y, touch)
+  -- Always give importTilesizeSetter priority if visible
+  if importTilesizeSetter.visible then
+    -- Only pass left mouse button as button 1
+    if touch == mouseTouch1 or touch == 1 then
+      importTilesizeSetter.mousepressed(x, y, 1)
+    end
+    return
+  end
   -- Always stop right drag on any left mouse press (prevents sticky drag after native dialogs)
   if touch == mouseTouch1 then
     stopRightDrag()
@@ -146,6 +156,11 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.textinput(t)
+  -- Always give importTilesizeSetter priority if visible
+  if importTilesizeSetter.visible then
+    importTilesizeSetter.textinput(t)
+    return
+  end
   -- Block all background input if any modal is visible
   local welcome = getWelcome()
   if welcome.visible then
@@ -160,6 +175,11 @@ function love.textinput(t)
 end
 
 function love.keypressed(key)
+  -- Always give importTilesizeSetter priority if visible
+  if importTilesizeSetter.visible then
+    importTilesizeSetter.keypressed(key)
+    return
+  end
   -- Block all background input if any modal is visible
   local welcome = getWelcome()
   if welcome.visible then
@@ -271,6 +291,11 @@ function love.draw()
   local confirmation = require("ui.confirmation")
   if confirmation.visible then
     confirmation.draw()
+  end
+  -- Draw importTilesizeSetter modal above everything if visible
+  if importTilesizeSetter.visible then
+    importTilesizeSetter.draw()
+    return
   end
   -- Draw welcome modal above everything if visible
   local welcome = getWelcome()

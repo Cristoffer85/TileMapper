@@ -1,6 +1,7 @@
 local welcome = {}
 local import = require("menu.import.importMain")
 local browse = require("utils.browse")
+local importTilesizeSetter = require("ui.importTilesizeSetter")
 
 welcome.visible = true
 welcome.inWelcomeFlow = true
@@ -80,12 +81,6 @@ end
   local fieldInputWidth = 150
   local col2x = welcome.x + welcome.width/2 - 20
   local fieldY = btnY
-  local menu = {
-    x = col2x,
-    y = fieldY,
-    width = btnW + 40,
-    height = 180
-  }
   for i, field in ipairs(input.modalFields.fields) do
     local y = fieldY + (i-1)*(fieldHeight+fieldSpacing)
     local label = (field == "mapName" and "Map Name:") or (field == "mapWidth" and "Map Width:") or (field == "mapHeight" and "Map Height:") or (field == "tileSize" and "Tile Size:")
@@ -127,6 +122,7 @@ end
   love.graphics.print("Create", createButtonX + (buttonW-60)/2, createY + 3)
 end
 
+
 function welcome.mousepressed(x, y, button)
   if not welcome.visible or button ~= 1 then return false end
   local btnW, btnH, spacing = 140, 36, 12
@@ -142,13 +138,37 @@ function welcome.mousepressed(x, y, button)
     if x >= col1x and x <= col1x+btnW and y >= by and y <= by+btnH then
       local filename = browse.openFile(btn[2], "Select File to Import")
       if filename then
-        local file = io.open(filename, "r")
-        if file then
-          btn[3](file)
-          io.close(file)
-        end
-        welcome.inWelcomeFlow = false
-        welcome.visible = false
+        -- Show tile size modal before importing
+        importTilesizeSetter.show("welcome",
+          function(tileSize)
+            local file = io.open(filename, "r")
+            if file then
+              -- Set grid.tileWidth and grid.tileHeight before import
+              grid.tileWidth = tonumber(tileSize) or 32
+              grid.tileHeight = tonumber(tileSize) or 32
+              btn[3](file)
+              io.close(file)
+              -- Save imported map data
+              local importedMap = grid.map
+              local importedWidth = grid.width
+              local importedHeight = grid.height
+              -- Force reload all tilesets and update right panel/grid for new tile size
+              if grid and grid.load then
+                grid.load()
+              end
+              -- Restore imported map data
+              grid.map = importedMap
+              grid.width = importedWidth
+              grid.height = importedHeight
+            end
+            welcome.inWelcomeFlow = false
+            welcome.visible = false
+          end,
+          function()
+            -- Cancel: return to welcome modal
+            welcome.visible = true
+          end
+        )
       else
         welcome.visible = true
       end

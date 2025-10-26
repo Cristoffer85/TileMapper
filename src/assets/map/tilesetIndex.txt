@@ -1,3 +1,1 @@
-0,PlayerWalk64.png
-1,TileSheet.png
-2,TileSheet2.png
+0,TileSheet2.png

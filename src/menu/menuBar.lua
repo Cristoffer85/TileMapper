@@ -82,16 +82,34 @@ function menuBar.modalKeypressed(key)
 end
 
 -- Utility: import/export file dialog for menu actions
+local importTilesizeSetter = require("ui.importTilesizeSetter")
 local function importFileDialog(extension, importFunc)
   local filename = browse.openFile(extension, "Select File to Import")
   if filename then
-    local file = io.open(filename, "r")
-    if file then
-      importFunc(file)
-      io.close(file)
-    else
-      love.window.showMessageBox("Import Error", "Could not open file: "..filename, "error")
-    end
+    importTilesizeSetter.show("menu",
+      function(tileSize)
+        local file = io.open(filename, "r")
+        if file then
+          grid.tileWidth = tonumber(tileSize) or 32
+          grid.tileHeight = tonumber(tileSize) or 32
+          importFunc(file)
+          io.close(file)
+          -- Save imported map data
+          local importedMap = grid.map
+          local importedWidth = grid.width
+          local importedHeight = grid.height
+          -- Force reload all tilesets and update right panel
+          grid.load()
+          -- Restore imported map data
+          grid.map = importedMap
+          grid.width = importedWidth
+          grid.height = importedHeight
+        end
+      end,
+      function()
+        -- Cancel: do nothing, just return to previous map
+      end
+    )
   end
 end
 
