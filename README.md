@@ -3,7 +3,7 @@
 Built from a fork from mDerams 2DMapEditor https://github.com/mDeram/2DMapEditor
 But almost completely remade, almost nothing remain of nor old logic nor visuality hence why license now stands under myself for this.
 
-2D map editor (Windows only currently) with support using Windows native dialogue to import .png tilesets into app [src/assets/tileset]
+2D map editor (Windows only) with support using Windows native dialogue to import .png tilesets into app [src/assets/tileset]
 Supports multiple tileset import at righthand panel where maps are also drawn in a multi-array that way [0:0;1:0] where by export a tilesetIndex.txt is accompanied to the same export folder by choice so your game will know what tileset has what index. These must of course also be identical to your game.
 
 Currently supports import and export to both .txt, json and lua since this is built mostly by help of LOVE2D engine: https://love2d.org/
