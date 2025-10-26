@@ -2,10 +2,10 @@ from PIL import Image
 
 # --- CONFIG ---
 input_image = "src/assets/img/europe.png"  # Path to your input image
-output_txt = "src/assets/map/MainWorld.txt"  # Output file for your map
+output_txt = "src/assets/map/MainWorld2.txt"  # Output file for your map
 land_tile = "0:61"
 sea_tile = "0:1"
-size = 128
+size = 256
 
 # --- PROCESS ---
 img = Image.open(input_image).convert("L").resize((size, size), Image.LANCZOS)
