@@ -71,8 +71,9 @@ Currently supports import and export to both .txt, json and lua since this is bu
 	- Download this repository and unzip and place in folder by choice.   
 ---
 2. 
-	- Locate AutomateExport.bat scriptbatch file in this repofolder, and locate this line
-	```REM -- ADJUST THIS --``` and adjust to filepath where LOVE2D where just installed.
+	- Locate AutomateExport.bat scriptbatch file in this repofolder, click to edit it and locate this line
+	```REM -- ADJUST THIS --```
+	- Adjust earlier said filepath line to filepath where LOVE2D where just installed.
 	- Click AutomateExport.bat which now runs a script to first zip all content in src- folder and concatenates game.love with love.exe and renders the output name to TileMapper.exe
 ---  
 3.
