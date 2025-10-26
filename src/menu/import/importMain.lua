@@ -16,7 +16,7 @@ function import.txt(file)
 	end
 	grid.width = #grid.map[1] or 0
 	grid.height = #grid.map
-	action.resetPos.f()
+	action.resetPos()
 end
 
 function import.txtSingleTileset(file)
@@ -107,7 +107,7 @@ function import.lua(file)
 	end
 	grid.width = #grid.map[#grid.map]
 	grid.height = #grid.map
-	action.resetPos.f()
+	action.resetPos()
 end
 
 function import.json(file)
@@ -148,7 +148,7 @@ function import.json(file)
 	end
 	grid.width = #grid.map[#grid.map]
 	grid.height = #grid.map
-	action.resetPos.f()
+	action.resetPos()
 end
 
 return import
