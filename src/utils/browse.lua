@@ -123,12 +123,10 @@ function browse.openTilesetImage()
   targetFile:write(data)
   targetFile:close()
   -- Add tileset to grid
-  if grid.addSingleTileset(filename) then
-    local tilesetScroll = require("panel.rightpanel.tilesetScroll")
-    tilesetScroll.resetScroll()
-    return true
-  end
-  return false
+  -- After copying, force reload all tilesets so right panel updates
+  grid.multiTilesetMode = false -- force autoDetectTilesets to run
+  grid.load() -- reloads all tilesets and updates UI
+  return true
 end
 
 return browse

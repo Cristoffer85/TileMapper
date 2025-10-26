@@ -213,18 +213,11 @@ function grid.autoDetectTilesets()
     end
   end
   
-  -- If we found multiple PNG files, enable multi-tileset mode
-  if #tilesetFiles > 1 then
+  -- If we found at least one PNG file, enable multi-tileset mode and show in right panel
+  if #tilesetFiles > 0 then
     grid.multiTilesetMode = true
     grid.tilesetPaths = tilesetFiles
-    
-    -- Sort files alphabetically for consistent ordering
     table.sort(grid.tilesetPaths)
-    
-    -- Silent activation - no popup message
-  elseif #tilesetFiles == 1 then
-    -- Single tileset found, use it
-    grid.tileSetPath = tilesetFiles[1]
   end
 end
 
