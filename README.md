@@ -10,6 +10,8 @@ Currently supports import and export to both .txt, json and lua since this is bu
 
 ## Preview
 
+![TileMapper Screenshot](src\assets\img\tilemapperpreview.png)
+
 ## Features - (Default click is left mousebutton unless otherwise specified)
 
 ```Top Menu Bar```
