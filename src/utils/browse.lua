@@ -126,9 +126,6 @@ function browse.openTilesetImage()
   if grid.addSingleTileset(filename) then
     local tilesetScroll = require("panel.rightpanel.tilesetScroll")
     tilesetScroll.resetScroll()
-    if tool and tool.camera then
-      tool.camera.state = false
-    end
     return true
   end
   return false
