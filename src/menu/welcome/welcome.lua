@@ -146,7 +146,7 @@ function welcome.mousepressed(x, y, button)
               -- Set grid.tileWidth and grid.tileHeight before import
               grid.tileWidth = tonumber(tileSize) or 32
               grid.tileHeight = tonumber(tileSize) or 32
-              btn[3](file)
+              btn[3](file, filename)
               io.close(file)
               -- Save imported map data
               local importedMap = grid.map
@@ -160,6 +160,12 @@ function welcome.mousepressed(x, y, button)
               grid.map = importedMap
               grid.width = importedWidth
               grid.height = importedHeight
+              -- Set mapName from filename
+              if filename then
+                local name = filename:match("([^/\\]+)%.%w+$") or filename
+                grid.mapName = name
+                grid.isDirty = true
+              end
             end
             welcome.inWelcomeFlow = false
             welcome.visible = false

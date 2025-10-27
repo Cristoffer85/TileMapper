@@ -1,6 +1,6 @@
 local import = {}
 
-function import.txt(file)
+function import.txt(file, filename)
 	grid.map = {}
 	local isMultiTilesetFormat = false
 	-- Check first line to determine format
@@ -17,6 +17,12 @@ function import.txt(file)
 	grid.width = #grid.map[1] or 0
 	grid.height = #grid.map
 	action.resetPos()
+	-- Set mapName from filename if provided
+	if filename then
+		local name = filename:match("([^/\\]+)%.%w+$") or filename
+		grid.mapName = name
+		grid.isDirty = true
+	end
 end
 
 function import.txtSingleTileset(file)
@@ -73,7 +79,7 @@ function import.convertToGlobalTileId(tilesetIndex, localTileId)
 	return tileset.startTileId + localTileId - 1
 end
 
-function import.lua(file)
+function import.lua(file, filename)
 	grid.map = {}
 	for line in file:lines() do
 		local contentFolder = line
@@ -108,9 +114,15 @@ function import.lua(file)
 	grid.width = #grid.map[#grid.map]
 	grid.height = #grid.map
 	action.resetPos()
+	-- Set mapName from filename if provided
+	if filename then
+		local name = filename:match("([^/\\]+)%.%w+$") or filename
+		grid.mapName = name
+		grid.isDirty = true
+	end
 end
 
-function import.json(file)
+function import.json(file, filename)
 	grid.map = {}
 	for line in file:lines() do
 		local contentFolder = line
@@ -149,6 +161,12 @@ function import.json(file)
 	grid.width = #grid.map[#grid.map]
 	grid.height = #grid.map
 	action.resetPos()
+	-- Set mapName from filename if provided
+	if filename then
+		local name = filename:match("([^/\\]+)%.%w+$") or filename
+		grid.mapName = name
+		grid.isDirty = true
+	end
 end
 
 return import

@@ -92,7 +92,7 @@ local function importFileDialog(extension, importFunc)
         if file then
           grid.tileWidth = tonumber(tileSize) or 32
           grid.tileHeight = tonumber(tileSize) or 32
-          importFunc(file)
+          importFunc(file, filename)
           io.close(file)
           -- Save imported map data
           local importedMap = grid.map
