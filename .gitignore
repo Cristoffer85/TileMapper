@@ -1,3 +1,7 @@
 # Ignore love and executable files created bv batch script
 /src/game.love
 /src/TileMapper.exe
+
+# Ignore all files in the assets/map and assets/tileset directories
+/src/assets/map/*
+/src/assets/tileset/*
